@@ -67,7 +67,7 @@ export const DateComponent = ({ userId }: { userId: string }) => {
         });
         return;
       }
-      const response = await fetch("/api/updatePollDate", {
+      const updateResponse = await fetch("/api/updatePollDate", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -78,7 +78,18 @@ export const DateComponent = ({ userId }: { userId: string }) => {
         }),
       });
 
-      if (!response.ok) {
+      await updateResponse.json();
+
+      const recapResponse = await fetch("/api/pollRecap", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log(recapResponse);
+
+      if (!recapResponse.ok) {
         throw new Error("Erreur lors de la mise à jour");
       }
 
