@@ -43,7 +43,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Error updating menu:", error);
     return NextResponse.json(
-      { success: false, message: error.message },
+      { message: (error as Error).message },
       { status: 500 }
     );
   }

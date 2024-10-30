@@ -1,4 +1,5 @@
 import { prisma } from "@/utils/prisma/prisma";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
@@ -51,6 +52,9 @@ export async function GET() {
 
     return Response.json(result);
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { message: (error as Error).message },
+      { status: 500 }
+    );
   }
 }

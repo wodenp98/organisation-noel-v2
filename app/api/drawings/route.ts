@@ -67,7 +67,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ userGift: assignment.receiver });
   } catch (error) {
     console.error("Error in secret santa draw:", error);
-    return NextResponse.json({ message: error.message }, { status: 500 });
+    return NextResponse.json(
+      { message: (error as Error).message },
+      { status: 500 }
+    );
   }
 }
 
