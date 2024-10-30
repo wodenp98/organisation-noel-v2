@@ -22,8 +22,6 @@ export const FamilyMenuRecapModal = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        cache: "no-store",
-        next: { revalidate: 0 },
       });
 
       if (!response.ok) {

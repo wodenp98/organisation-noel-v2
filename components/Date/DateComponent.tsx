@@ -26,9 +26,6 @@ export const DateComponent = ({ userId }: { userId: string }) => {
           headers: {
             "Content-Type": "application/json",
           },
-          next: {
-            revalidate: 0,
-          },
         });
 
         if (!response.ok) {
@@ -83,9 +80,6 @@ export const DateComponent = ({ userId }: { userId: string }) => {
           userId: userId,
           pollDate: selectedDate,
         }),
-        next: {
-          revalidate: 0,
-        },
       });
 
       if (!response.ok) {
