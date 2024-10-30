@@ -19,12 +19,13 @@ export const DateRecapModal = () => {
   const fetchRecap = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/pollRecap", {
+      // Ajout d'un timestamp pour forcer un nouveau chargement
+      const response = await fetch(`/api/pollRecap?t=${Date.now()}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
-        cache: "no-store", // Désactive le cache pour cette requête
+        cache: "no-store",
       });
 
       if (!response.ok) {
@@ -32,8 +33,7 @@ export const DateRecapModal = () => {
       }
 
       const data = await response.json();
-
-      console.log(data);
+      console.log("Données reçues:", data); // Pour debug
 
       const organizedData: { [key: string]: User[] } = {
         vendredi: [],
@@ -50,8 +50,7 @@ export const DateRecapModal = () => {
         }
       });
 
-      console.log(organizedData);
-
+      console.log("Données organisées:", organizedData); // Pour debug
       setRecap(organizedData);
     } catch (error) {
       console.error("Erreur:", error);
