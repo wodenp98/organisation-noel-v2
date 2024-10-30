@@ -55,6 +55,10 @@ export const DateRecapModal = () => {
     }
   };
 
+  useEffect(() => {
+    fetchRecap();
+  }, []);
+
   const renderUserList = (users: User[]) => {
     return users.map((user) => (
       <li key={user.id} className="py-1">
@@ -69,7 +73,9 @@ export const DateRecapModal = () => {
         <Button
           variant="outline"
           className="mt-4 w-full"
-          onClick={async () => await fetchRecap()}
+          onClick={async () => {
+            if (!isLoading) await fetchRecap();
+          }}
         >
           {isLoading ? "Chargement..." : "Voir le récapitulatif des votes"}
         </Button>

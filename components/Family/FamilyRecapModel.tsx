@@ -38,6 +38,10 @@ export const FamilyMenuRecapModal = () => {
     }
   };
 
+  useEffect(() => {
+    fetchRecap();
+  }, []);
+
   const renderFamilyRecap = (family: string, items: any) => (
     <div key={family} className="p-4 rounded-lg bg-gray-800">
       <h3 className="font-semibold mb-2 text-yellow-500">Famille: {family}</h3>
@@ -67,7 +71,9 @@ export const FamilyMenuRecapModal = () => {
         <Button
           variant="outline"
           className="mt-4 w-full"
-          onClick={async () => await fetchRecap()}
+          onClick={async () => {
+            if (!isLoading) await fetchRecap();
+          }}
         >
           {isLoading
             ? "Chargement..."
