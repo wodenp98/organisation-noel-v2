@@ -1,6 +1,26 @@
 import { prisma } from "@/utils/prisma/prisma";
 import { NextResponse } from "next/server";
 
+interface FamilyAggregation {
+  entries: Set<string>;
+  flat: Set<string>;
+  desserts: Set<string>;
+  alcoholSoft: Set<string>;
+}
+
+interface OrganizedData {
+  [key: string]: FamilyAggregation;
+}
+
+interface FinalResult {
+  [key: string]: {
+    entries: string[];
+    flat: string[];
+    desserts: string[];
+    alcoholSoft: string[];
+  };
+}
+
 export async function GET() {
   try {
     const users = await prisma.user.findMany({
@@ -14,16 +34,16 @@ export async function GET() {
     });
 
     // Organize data by family with aggregated contributions
-    const organizedData = users.reduce((acc, user) => {
+    const organizedData = users.reduce<OrganizedData>((acc, user) => {
       const family = user.family || "Autre";
 
       // Initialize family entry if it doesn't exist
       if (!acc[family]) {
         acc[family] = {
-          entries: new Set(),
-          flat: new Set(),
-          desserts: new Set(),
-          alcoholSoft: new Set(),
+          entries: new Set<string>(),
+          flat: new Set<string>(),
+          desserts: new Set<string>(),
+          alcoholSoft: new Set<string>(),
         };
       }
 
@@ -37,7 +57,7 @@ export async function GET() {
     }, {});
 
     // Convert sets to arrays for easier JSON serialization
-    const result = Object.entries(organizedData).reduce(
+    const result = Object.entries(organizedData).reduce<FinalResult>(
       (acc, [family, items]) => {
         acc[family] = {
           entries: Array.from(items.entries),
