@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import { User } from "@/types/user";
 export const DateRecapModal = () => {
   const [recap, setRecap] = useState<{ [key: string]: User[] } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const fetchRecap = async () => {
     setIsLoading(true);
@@ -23,9 +24,8 @@ export const DateRecapModal = () => {
         headers: {
           "Content-Type": "application/json",
         },
+        cache: "no-store", // Désactive le cache pour cette requête
       });
-
-      console.log(response);
 
       if (!response.ok) {
         throw new Error("Erreur lors de la récupération des données");
@@ -56,6 +56,13 @@ export const DateRecapModal = () => {
     }
   };
 
+  // Effet pour charger les données quand la modal s'ouvre
+  useEffect(() => {
+    if (isOpen) {
+      fetchRecap();
+    }
+  }, [isOpen]);
+
   const renderUserList = (users: User[]) => {
     return users.map((user) => (
       <li key={user.id} className="py-1">
@@ -65,9 +72,9 @@ export const DateRecapModal = () => {
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="mt-4 w-full" onClick={fetchRecap}>
+        <Button variant="outline" className="mt-4 w-full">
           {isLoading ? "Chargement..." : "Voir le récapitulatif des votes"}
         </Button>
       </DialogTrigger>
@@ -76,6 +83,14 @@ export const DateRecapModal = () => {
           <DialogTitle className="text-xl font-bold mb-4">
             Récapitulatif des votes
           </DialogTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchRecap}
+            disabled={isLoading}
+          >
+            Rafraîchir
+          </Button>
         </DialogHeader>
         {recap && (
           <div className="grid gap-6">
