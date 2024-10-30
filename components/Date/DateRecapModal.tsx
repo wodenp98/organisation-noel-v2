@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +24,8 @@ export const DateRecapModal = () => {
           "Content-Type": "application/json",
         },
       });
+
+      console.log(response);
 
       if (!response.ok) {
         throw new Error("Erreur lors de la récupération des données");
@@ -54,10 +56,6 @@ export const DateRecapModal = () => {
     }
   };
 
-  useEffect(() => {
-    fetchRecap();
-  }, []);
-
   const renderUserList = (users: User[]) => {
     return users.map((user) => (
       <li key={user.id} className="py-1">
@@ -69,13 +67,7 @@ export const DateRecapModal = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="mt-4 w-full"
-          onClick={async () => {
-            if (!isLoading) await fetchRecap();
-          }}
-        >
+        <Button variant="outline" className="mt-4 w-full" onClick={fetchRecap}>
           {isLoading ? "Chargement..." : "Voir le récapitulatif des votes"}
         </Button>
       </DialogTrigger>

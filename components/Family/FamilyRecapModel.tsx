@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +23,7 @@ export const FamilyMenuRecapModal = () => {
           "Content-Type": "application/json",
         },
       });
+      console.log(response);
 
       if (!response.ok) {
         throw new Error("Erreur lors de la récupération des données");
@@ -36,10 +37,6 @@ export const FamilyMenuRecapModal = () => {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchRecap();
-  }, []);
 
   const renderFamilyRecap = (family: string, items: any) => (
     <div key={family} className="p-4 rounded-lg bg-gray-800">
@@ -67,13 +64,7 @@ export const FamilyMenuRecapModal = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="mt-4 w-full"
-          onClick={async () => {
-            if (!isLoading) await fetchRecap();
-          }}
-        >
+        <Button variant="outline" className="mt-4 w-full" onClick={fetchRecap}>
           {isLoading
             ? "Chargement..."
             : "Voir le récapitulatif des menus par famille"}

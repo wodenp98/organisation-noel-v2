@@ -21,18 +21,15 @@ export const DateComponent = ({ userId }: { userId: string }) => {
   useEffect(() => {
     const fetchPollDate = async () => {
       try {
-        const response = await fetch("/api/pollRecap", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(`/api/pollRecap/${userId}`);
 
         if (!response.ok) {
           throw new Error("Erreur lors de la récupération de la date de vote");
         }
 
         const data = await response.json();
+
+        console.log(data);
 
         if (data.pollDate) {
           setSelectedDate(data.pollDate);
@@ -46,7 +43,6 @@ export const DateComponent = ({ userId }: { userId: string }) => {
         });
       }
     };
-
     if (userId) {
       fetchPollDate();
     }
