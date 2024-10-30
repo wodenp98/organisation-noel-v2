@@ -26,9 +26,6 @@ export async function PUT(request: NextRequest) {
         },
       });
 
-      console.log(allUsers);
-      console.log(updatedUser);
-
       return {
         updatedUser,
         allUsers,

@@ -33,7 +33,6 @@ export const DateRecapModal = () => {
       }
 
       const data = await response.json();
-      console.log("Données reçues:", data); // Pour debug
 
       const organizedData: { [key: string]: User[] } = {
         vendredi: [],
@@ -50,7 +49,6 @@ export const DateRecapModal = () => {
         }
       });
 
-      console.log("Données organisées:", organizedData); // Pour debug
       setRecap(organizedData);
     } catch (error) {
       console.error("Erreur:", error);
@@ -67,7 +65,6 @@ export const DateRecapModal = () => {
   }, [isOpen]);
 
   const renderUserList = (users: User[]) => {
-    console.log(users);
     return users.map((user) => (
       <li key={user.id} className="py-1">
         {user.name}
@@ -87,14 +84,6 @@ export const DateRecapModal = () => {
           <DialogTitle className="text-xl font-bold mb-4">
             Récapitulatif des votes
           </DialogTitle>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={fetchRecap}
-            disabled={isLoading}
-          >
-            Rafraîchir
-          </Button>
         </DialogHeader>
         {recap && (
           <div className="grid gap-6">

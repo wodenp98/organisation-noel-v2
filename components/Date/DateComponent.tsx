@@ -29,8 +29,6 @@ export const DateComponent = ({ userId }: { userId: string }) => {
 
         const data = await response.json();
 
-        console.log(data);
-
         if (data.pollDate) {
           setSelectedDate(data.pollDate);
           setIsDisabled(true);
@@ -86,8 +84,6 @@ export const DateComponent = ({ userId }: { userId: string }) => {
           "Content-Type": "application/json",
         },
       });
-
-      console.log(recapResponse);
 
       if (!recapResponse.ok) {
         throw new Error("Erreur lors de la mise à jour");

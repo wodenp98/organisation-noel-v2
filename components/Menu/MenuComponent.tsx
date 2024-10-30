@@ -55,7 +55,6 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
     Object.entries(data).forEach(([key, value]) => {
       cleaned[key] = typeof value === "string" ? value.trim() || null : value;
     });
-    console.log(cleaned);
     return cleaned;
   };
 
@@ -69,7 +68,6 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
           },
         });
         const data = await response.json();
-        console.log(data);
 
         if (data.success) {
           setFormState({
@@ -129,7 +127,6 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
         });
         return;
       }
-      console.log(userId);
       const submitData = {
         id: userId,
         entree1: formState.entree1.trim(),

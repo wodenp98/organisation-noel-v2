@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 export const FamilyMenuRecapModal = () => {
   const [recap, setRecap] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const fetchRecap = async () => {
     setIsLoading(true);
@@ -22,8 +23,8 @@ export const FamilyMenuRecapModal = () => {
         headers: {
           "Content-Type": "application/json",
         },
+        cache: "no-store",
       });
-      console.log(response);
 
       if (!response.ok) {
         throw new Error("Erreur lors de la récupération des données");
@@ -37,6 +38,12 @@ export const FamilyMenuRecapModal = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchRecap();
+    }
+  }, [isOpen]);
 
   const renderFamilyRecap = (family: string, items: any) => (
     <div key={family} className="p-4 rounded-lg bg-gray-800">
@@ -62,9 +69,9 @@ export const FamilyMenuRecapModal = () => {
   );
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="mt-4 w-full" onClick={fetchRecap}>
+        <Button variant="outline" className="mt-4 w-full">
           {isLoading
             ? "Chargement..."
             : "Voir le récapitulatif des menus par famille"}

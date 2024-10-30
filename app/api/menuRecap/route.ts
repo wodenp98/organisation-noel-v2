@@ -23,6 +23,8 @@ interface FinalResult {
 
 export async function GET() {
   try {
+    await prisma.$queryRaw`SELECT 1`;
+
     const users = await prisma.user.findMany({
       select: {
         family: true,
@@ -66,9 +68,18 @@ export async function GET() {
       {}
     );
 
-    console.log(result);
+    const response = NextResponse.json(result, { status: 200 });
 
-    return NextResponse.json(result, { status: 200 });
+    // Ajout des en-têtes pour désactiver le cache
+    response.headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate"
+    );
+    response.headers.set("Pragma", "no-cache");
+    response.headers.set("Expires", "0");
+    response.headers.set("Surrogate-Control", "no-store");
+
+    return response;
   } catch (error) {
     return NextResponse.json(
       { message: (error as Error).message },
