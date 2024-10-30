@@ -33,11 +33,9 @@ export async function GET() {
       },
     });
 
-    // Organize data by family with aggregated contributions
     const organizedData = users.reduce<OrganizedData>((acc, user) => {
       const family = user.family || "Autre";
 
-      // Initialize family entry if it doesn't exist
       if (!acc[family]) {
         acc[family] = {
           entries: new Set<string>(),
@@ -47,7 +45,6 @@ export async function GET() {
         };
       }
 
-      // Add contributions to each category, avoiding duplicates
       if (user.entries) acc[family].entries.add(user.entries);
       if (user.flat) acc[family].flat.add(user.flat);
       if (user.desserts) acc[family].desserts.add(user.desserts);
@@ -56,7 +53,6 @@ export async function GET() {
       return acc;
     }, {});
 
-    // Convert sets to arrays for easier JSON serialization
     const result = Object.entries(organizedData).reduce<FinalResult>(
       (acc, [family, items]) => {
         acc[family] = {

@@ -5,20 +5,23 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { DateRecapModal } from "@/components/Date/DateRecapModal.tsx";
-import { useSession } from "next-auth/react";
+import { DateRecapModal } from "@/components/Date/DateRecapModal";
 
-export const DateComponent = () => {
-  const { data: user } = useSession();
+type AlertType = {
+  type: "error" | "success" | "info";
+  message: string;
+} | null;
+
+export const DateComponent = ({ userId }: { userId: string }) => {
   const [selectedDate, setSelectedDate] = useState("");
-  const [alert, setAlert] = useState(null);
+  const [alert, setAlert] = useState<AlertType>(null);
   const [isDisabled, setIsDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchPollDate = async () => {
       try {
-        const response = await fetch(`/api/user/${user.user.id}`, {
+        const response = await fetch(`/api/user/${userId}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -44,12 +47,12 @@ export const DateComponent = () => {
       }
     };
 
-    if (user?.user?.id) {
+    if (userId) {
       fetchPollDate();
     }
-  }, [user]);
+  }, [userId]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!selectedDate) {
       setAlert({
@@ -61,13 +64,20 @@ export const DateComponent = () => {
 
     setIsLoading(true);
     try {
+      if (!user) {
+        setAlert({
+          type: "error",
+          message: "Veuillez vous connecter à votre compte pour tirer",
+        });
+        return;
+      }
       const response = await fetch("/api/updatePollDate", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          userId: user.user.id,
+          userId: userId,
           pollDate: selectedDate,
         }),
       });
@@ -82,9 +92,12 @@ export const DateComponent = () => {
       });
       setIsDisabled(true);
     } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "An unknown error occurred";
+
       setAlert({
         type: "error",
-        message: error.message || "Une erreur s'est produite",
+        message: message,
       });
     } finally {
       setIsLoading(false);

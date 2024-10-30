@@ -1,7 +1,7 @@
 import { Gift, CalendarClock, ChefHat } from "lucide-react";
 import { ToggleDarkMode } from "@/components/Theme/Theme";
 import { auth } from "@/auth";
-
+import { redirect } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -16,6 +16,10 @@ import {
 
 export async function AppSidebar() {
   const session = await auth();
+
+  if (!session) {
+    return redirect("/login");
+  }
 
   const items =
     session.user?.name === "Papy"

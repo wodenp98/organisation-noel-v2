@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   const { giverId, gen } = await request.json();
   try {
-    // Vérifier l'existence du donneur
     const giver = await prisma.user.findUnique({
       where: { id: giverId },
     });
@@ -12,7 +11,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    // Vérifier si un tirage existe déjà pour cette génération
     const existingDraw = await prisma.draw.findFirst({
       where: {
         gen: gen,
@@ -20,11 +18,9 @@ export async function POST(request: Request) {
     });
 
     if (!existingDraw) {
-      // Créer le tirage initial s'il n'existe pas
       await createInitialDraw(gen);
     }
 
-    // Révéler le résultat pour cet utilisateur
     const assignment = await prisma.draw.findFirst({
       where: {
         giverId: giverId,
@@ -42,9 +38,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Mettre à jour l'utilisateur et le tirage dans une transaction
     await prisma.$transaction([
-      // Marquer comme révélé pour cet utilisateur
       prisma.draw.update({
         where: {
           id: assignment.id,
@@ -53,13 +47,12 @@ export async function POST(request: Request) {
           isRevealed: true,
         },
       }),
-      // Mettre à jour le nom tiré pour l'utilisateur
       prisma.user.update({
         where: {
           id: giverId,
         },
         data: {
-          nameOfPoll: assignment.receiver.name, // Supposant que le receiver a un champ 'name'
+          nameOfPoll: assignment.receiver.name,
         },
       }),
     ]);
@@ -86,13 +79,11 @@ async function createInitialDraw(gen: number) {
   const n = participants.length;
   const indices = Array.from({ length: n }, (_, i) => i);
 
-  // Mélanger les indices
   for (let i = n - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [indices[i], indices[j]] = [indices[j], indices[i]];
   }
 
-  // Créer les assignments en base de données
   await prisma.$transaction(
     indices.map((_, i) => {
       const giver = participants[indices[i]];

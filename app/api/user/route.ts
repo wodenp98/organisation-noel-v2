@@ -1,8 +1,6 @@
 import { prisma } from "@/utils/prisma/prisma";
 import { NextResponse } from "next/server";
 
-// users by id
-
 export async function GET() {
   const users = await prisma.user.findMany();
 

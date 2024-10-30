@@ -1,4 +1,3 @@
-// app/api/draw/[id]/route.ts
 import { prisma } from "@/utils/prisma/prisma";
 import { NextResponse } from "next/server";
 
@@ -7,7 +6,6 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    // Récupérer le tirage pour l'utilisateur spécifié
     const draw = await prisma.draw.findFirst({
       where: {
         giverId: params.id,

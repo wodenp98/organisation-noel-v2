@@ -5,7 +5,6 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import { prisma } from "@/utils/prisma/prisma";
-import { Adapter } from "next-auth/adapters";
 
 export const {
   auth,
@@ -14,7 +13,7 @@ export const {
   handlers: { GET, POST },
 } = NextAuth({
   ...authConfig,
-  adapter: PrismaAdapter(prisma) as Adapter,
+  adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
   },
@@ -56,12 +55,10 @@ export const {
 
           if (!passwordsMatch) return null;
 
-          // Retourner uniquement les données nécessaires
           return {
-            id: user.id.toString(), // Convertir en string car NextAuth attend un string
+            id: user.id.toString(),
             username: user.username,
             name: user.name,
-            gen: user.gen,
           };
         } catch (error) {
           console.error("Authentication error:", error);
@@ -71,19 +68,22 @@ export const {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    jwt: async ({ token, user }) => {
       if (user) {
-        token.id = user.id;
-        token.username = user.username;
+        token.id = user.id as string;
+        token.username = user.username as string;
       }
       return token;
     },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id;
-        session.user.username = token.username as string;
-      }
-      return session;
+    session: async ({ session, token }) => {
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.id as string,
+          username: token.username as string,
+        },
+      };
     },
   },
   secret: process.env.AUTH_SECRET,

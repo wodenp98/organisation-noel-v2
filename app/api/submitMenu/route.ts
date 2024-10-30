@@ -1,5 +1,3 @@
-// app/api/submitMenu/route.ts
-
 import { prisma } from "@/utils/prisma/prisma";
 import { NextResponse } from "next/server";
 
@@ -17,7 +15,6 @@ export async function POST(request: Request) {
       alcohol2,
     } = await request.json();
 
-    // Set values to null if they are empty or undefined, which will clear them in the database
     const updatedData = {
       entries:
         entree1 || entree2

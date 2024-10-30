@@ -9,9 +9,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { User } from "@/types/user";
 
 export const DateRecapModal = () => {
-  const [recap, setRecap] = useState(null);
+  const [recap, setRecap] = useState<{ [key: string]: User[] } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchRecap = async () => {
@@ -30,15 +31,14 @@ export const DateRecapModal = () => {
 
       const data = await response.json();
 
-      // Organiser les données par date
-      const organizedData = {
+      const organizedData: { [key: string]: User[] } = {
         vendredi: [],
         samedi: [],
         "les-deux": [],
         nonVoted: [],
       };
 
-      data.forEach((user) => {
+      data.forEach((user: User) => {
         if (user.pollDate) {
           organizedData[user.pollDate].push(user);
         } else {
@@ -54,7 +54,7 @@ export const DateRecapModal = () => {
     }
   };
 
-  const renderUserList = (users) => {
+  const renderUserList = (users: User[]) => {
     return users.map((user) => (
       <li key={user.id} className="py-1">
         {user.name}

@@ -1,13 +1,12 @@
-// app/api/getMenu/route.ts
 import { prisma } from "@/utils/prisma/prisma";
 import { NextResponse } from "next/server";
 
-export async function GET(request: Request) {
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId");
-
-    if (!userId) {
+    if (!params.id) {
       return NextResponse.json(
         { success: false, message: "User ID is required" },
         { status: 400 }
@@ -15,7 +14,7 @@ export async function GET(request: Request) {
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: params.id },
       select: {
         entries: true,
         flat: true,
@@ -31,7 +30,6 @@ export async function GET(request: Request) {
       );
     }
 
-    // Convertir les chaînes en tableaux
     const [entree1, entree2] = user.entries
       ? user.entries.split(", ")
       : ["", ""];

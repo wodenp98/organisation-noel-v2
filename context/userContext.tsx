@@ -1,6 +1,7 @@
 "use client";
 import React, { createContext, useContext, useState } from "react";
 import { signIn } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 interface UserContextType {
   login: (username: string, password: string) => Promise<void>;
@@ -30,10 +31,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // Redirection après connexion réussie
-      redirect("/"); // ou votre page de destination
+      redirect("/");
     } catch (err) {
-      setError("Une erreur est survenue", err.message);
+      const message =
+        err instanceof Error ? err.message : "An unknown error occurred";
+
+      setError(message);
     } finally {
       setIsLoading(false);
     }

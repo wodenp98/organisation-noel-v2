@@ -27,31 +27,27 @@ model User {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   
-  // Relations existantes
   accounts      Account[]
   Authenticator Authenticator[]
   sessions      Session[]
   
-  // Nouvelles relations pour le tirage au sort
   givenDraws    Draw[]          @relation("Giver")
   receivedDraws Draw[]          @relation("Receiver")
 }
 
-// Nouveau modèle pour le tirage au sort
 model Draw {
   id          String    @id @default(cuid())
-  gen         Int       // Correspond au champ gen de User
+  gen         Int       
   isRevealed  Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   
-  // Relations avec User
   giver       User      @relation("Giver", fields: [giverId], references: [id], onDelete: Cascade)
   giverId     String
   receiver    User      @relation("Receiver", fields: [receiverId], references: [id], onDelete: Cascade)
   receiverId  String
 
-  @@unique([giverId, gen])  // Un utilisateur ne peut avoir qu'un seul tirage par génération
+  @@unique([giverId, gen]) 
 }
 
 model Account {
