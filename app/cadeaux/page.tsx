@@ -5,8 +5,8 @@ import { redirect } from "next/navigation";
 export default async function Cadeaux() {
   const session = await auth();
 
-  if (!session || session.user.name !== "Papy") {
-    return redirect("/login");
+  if (!session || session.user.name === "Papy") {
+    redirect("/login");
   }
 
   return (

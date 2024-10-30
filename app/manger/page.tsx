@@ -7,7 +7,7 @@ export default async function Menu() {
   const session = await auth();
 
   if (!session) {
-    return redirect("/login");
+    redirect("/login");
   }
 
   return (
