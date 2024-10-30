@@ -30,16 +30,20 @@ export async function GET() {
     await prisma.$disconnect();
     await prisma.$connect();
 
-    const users = await prisma.user.findMany({
-      select: {
-        family: true,
-        entries: true,
-        flat: true,
-        desserts: true,
-        alcoholSoft: true,
+    const users = await prisma.user.findMany(
+      {
+        select: {
+          family: true,
+          entries: true,
+          flat: true,
+          desserts: true,
+          alcoholSoft: true,
+        },
       },
-      cacheStrategy: { ttl: 0 },
-    });
+      {
+        isolationLevel: "ReadUncommitted", // This ensures we get the latest data
+      }
+    );
 
     const organizedData = users.reduce<OrganizedData>((acc, user) => {
       const family = user.family || "Autre";
