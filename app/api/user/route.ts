@@ -1,4 +1,4 @@
-import prisma from "@/utils/prisma/prisma";
+import { prisma } from "@/utils/prisma/prisma";
 import { NextResponse } from "next/server";
 
 // users by id
