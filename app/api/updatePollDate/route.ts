@@ -4,15 +4,35 @@ import { NextResponse, NextRequest } from "next/server";
 export async function PUT(request: NextRequest) {
   try {
     const { userId, pollDate } = await request.json();
-    const updatedUser = await prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        pollDate: pollDate,
-      },
+
+    // Utiliser une transaction pour s'assurer que les données sont cohérentes
+    const result = await prisma.$transaction(async (tx) => {
+      // Faire la mise à jour
+      const updatedUser = await tx.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          pollDate: pollDate,
+        },
+      });
+
+      // Immédiatement récupérer les données mises à jour
+      const allUsers = await tx.user.findMany({
+        select: {
+          id: true,
+          name: true,
+          pollDate: true,
+        },
+      });
+
+      return {
+        updatedUser,
+        allUsers,
+      };
     });
-    return NextResponse.json(updatedUser);
+
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Error updating poll date:", error);
     return NextResponse.json(
