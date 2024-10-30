@@ -66,9 +66,7 @@ export async function GET() {
       {}
     );
 
-    return NextResponse.json(result, {
-      headers: { "Cache-Control": "no-store" },
-    });
+    return NextResponse.json(result, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { message: (error as Error).message },
