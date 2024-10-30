@@ -18,13 +18,16 @@ export const DateRecapModal = () => {
   const fetchRecap = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/pollRecap", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": "no-cache",
+      const response = await fetch(
+        "/api/pollRecap",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-      });
+        { cache: "no-store" }
+      );
 
       if (!response.ok) {
         throw new Error("Erreur lors de la récupération des données");
