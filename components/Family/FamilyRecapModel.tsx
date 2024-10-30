@@ -31,7 +31,6 @@ export const FamilyMenuRecapModal = () => {
     setIsLoading(true);
     setError(null);
     try {
-      // Ajout d'un timestamp pour éviter le cache
       const timestamp = new Date().getTime();
       const response = await fetch(`/api/menuRecap?t=${timestamp}`, {
         method: "GET",
@@ -49,7 +48,6 @@ export const FamilyMenuRecapModal = () => {
       }
 
       const data = await response.json();
-      console.log("Données reçues:", data);
       setRecap(data);
     } catch (error) {
       console.error("Erreur lors du chargement:", error);

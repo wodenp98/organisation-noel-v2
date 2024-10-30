@@ -5,9 +5,7 @@ export async function PUT(request: NextRequest) {
   try {
     const { userId, pollDate } = await request.json();
 
-    // Utiliser une transaction pour s'assurer que les données sont cohérentes
     const result = await prisma.$transaction(async (tx) => {
-      // Faire la mise à jour
       const updatedUser = await tx.user.update({
         where: {
           id: userId,

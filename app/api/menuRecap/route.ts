@@ -26,7 +26,6 @@ export const revalidate = 0;
 
 export async function GET() {
   try {
-    // Reset la connexion Prisma
     await prisma.$disconnect();
     await prisma.$connect();
 
@@ -43,7 +42,7 @@ export async function GET() {
         });
       },
       {
-        isolationLevel: "ReadUncommitted", // This ensures we get the latest data
+        isolationLevel: "ReadUncommitted",
       }
     );
 
@@ -81,7 +80,6 @@ export async function GET() {
 
     const response = NextResponse.json(result, { status: 200 });
 
-    // En-têtes anti-cache renforcés
     response.headers.set(
       "Cache-Control",
       "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"

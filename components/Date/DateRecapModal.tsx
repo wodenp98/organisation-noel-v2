@@ -19,7 +19,6 @@ export const DateRecapModal = () => {
   const fetchRecap = async () => {
     setIsLoading(true);
     try {
-      // Ajout d'un timestamp pour forcer un nouveau chargement
       const response = await fetch(`/api/pollRecap?t=${Date.now()}`, {
         method: "GET",
         headers: {
@@ -57,7 +56,6 @@ export const DateRecapModal = () => {
     }
   };
 
-  // Effet pour charger les données quand la modal s'ouvre
   useEffect(() => {
     if (isOpen) {
       fetchRecap();
