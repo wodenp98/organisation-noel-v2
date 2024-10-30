@@ -11,7 +11,9 @@ export async function GET() {
       },
     });
 
-    return Response.json(users);
+    return NextResponse.json(users, {
+      headers: { "Cache-Control": "no-store" },
+    });
   } catch (error) {
     return NextResponse.json(
       { message: (error as Error).message },

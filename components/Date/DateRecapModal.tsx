@@ -22,6 +22,7 @@ export const DateRecapModal = () => {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          "Cache-Control": "no-cache",
         },
       });
 
@@ -69,7 +70,7 @@ export const DateRecapModal = () => {
           {isLoading ? "Chargement..." : "Voir le récapitulatif des votes"}
         </Button>
       </DialogTrigger>
-      <DialogContent className="w-[350px] md:w-full">
+      <DialogContent className="w-[350px] md:w-full max-h-[80vh] overflow-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold mb-4">
             Récapitulatif des votes
