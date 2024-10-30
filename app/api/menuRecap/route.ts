@@ -21,9 +21,14 @@ interface FinalResult {
   };
 }
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   try {
-    await prisma.$queryRaw`SELECT 1`;
+    // Reset la connexion Prisma
+    await prisma.$disconnect();
+    await prisma.$connect();
 
     const users = await prisma.user.findMany({
       select: {
@@ -33,13 +38,11 @@ export async function GET() {
         desserts: true,
         alcoholSoft: true,
       },
+      cacheStrategy: { ttl: 0 },
     });
-
-    console.log(users);
 
     const organizedData = users.reduce<OrganizedData>((acc, user) => {
       const family = user.family || "Autre";
-
       if (!acc[family]) {
         acc[family] = {
           entries: new Set<string>(),
@@ -57,8 +60,6 @@ export async function GET() {
       return acc;
     }, {});
 
-    console.log(organizedData);
-
     const result = Object.entries(organizedData).reduce<FinalResult>(
       (acc, [family, items]) => {
         acc[family] = {
@@ -72,21 +73,21 @@ export async function GET() {
       {}
     );
 
-    console.log(result);
-
     const response = NextResponse.json(result, { status: 200 });
 
-    // Ajout des en-têtes pour désactiver le cache
+    // En-têtes anti-cache renforcés
     response.headers.set(
       "Cache-Control",
-      "no-store, no-cache, must-revalidate, proxy-revalidate"
+      "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
     );
     response.headers.set("Pragma", "no-cache");
-    response.headers.set("Expires", "0");
+    response.headers.set("Expires", "-1");
     response.headers.set("Surrogate-Control", "no-store");
+    response.headers.set("X-Accel-Expires", "0");
 
     return response;
   } catch (error) {
+    console.error("API Error:", error);
     return NextResponse.json(
       { message: (error as Error).message },
       { status: 500 }
