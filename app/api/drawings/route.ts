@@ -2,82 +2,107 @@ import { prisma } from "@/utils/prisma/prisma";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
-  if (request.method === "POST") {
-    const { giverId, gen } = await request.json();
-
-    try {
-      // Vérifier l'existence du donneur
-      const giver = await prisma.user.findUnique({
-        where: { id: giverId },
-      });
-
-      if (!giver) {
-        return NextResponse.json(
-          { message: "User not found" },
-          { status: 404 }
-        );
-      }
-
-      // Récupération des participants de la même génération, en excluant le donneur
-      const participants = await prisma.user.findMany({
-        where: {
-          gen: gen, // Filtre strict sur la génération
-          NOT: { id: giverId }, // Exclut le donneur de la liste
-        },
-      });
-
-      // Vérifier si des participants sont disponibles
-      if (participants.length === 0) {
-        return NextResponse.json(
-          {
-            message: "No participants available to draw from",
-          },
-          { status: 404 }
-        );
-      }
-
-      // Mélange aléatoire des participants pour éviter le biais
-      const shuffledParticipants = participants.sort(() => 0.5 - Math.random());
-
-      // Assurer qu'on a des participants valides
-      const receivers = new Set();
-
-      for (const receiver of shuffledParticipants) {
-        if (receiver.id !== giverId) {
-          receivers.add(receiver.id);
-        }
-      }
-
-      // Vérifier que chaque participant peut recevoir un cadeau
-      if (receivers.size < participants.length) {
-        return NextResponse.json(
-          { message: "Error: Not everyone can receive a gift" },
-          { status: 400 }
-        );
-      }
-
-      // Sélection aléatoire d'un receveur dans le Set
-      const chosenReceiverId = Array.from(receivers)[0];
-      const chosenReceiver = await prisma.user.findUnique({
-        where: { id: chosenReceiverId },
-      });
-
-      // Mise à jour du donneur avec le receveur choisi
-      await prisma.user.update({
-        where: { id: giverId },
-        data: {
-          nameOfPoll: chosenReceiver.name,
-        },
-      });
-
-      return NextResponse.json({ userGift: chosenReceiver });
-    } catch (error) {
-      return NextResponse.json({ message: error.message }, { status: 500 });
+  const { giverId, gen } = await request.json();
+  try {
+    // Vérifier l'existence du donneur
+    const giver = await prisma.user.findUnique({
+      where: { id: giverId },
+    });
+    if (!giver) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
-  } else {
-    return NextResponse.json(
-      { message: `Method ${request.method} Not Allowed` },
-      { status: 405 }
-    );
+
+    // Vérifier si un tirage existe déjà pour cette génération
+    const existingDraw = await prisma.draw.findFirst({
+      where: {
+        gen: gen,
+      },
+    });
+
+    if (!existingDraw) {
+      // Créer le tirage initial s'il n'existe pas
+      await createInitialDraw(gen);
+    }
+
+    // Révéler le résultat pour cet utilisateur
+    const assignment = await prisma.draw.findFirst({
+      where: {
+        giverId: giverId,
+        gen: gen,
+      },
+      include: {
+        receiver: true,
+      },
+    });
+
+    if (!assignment) {
+      return NextResponse.json(
+        { message: "No draw found for this user" },
+        { status: 404 }
+      );
+    }
+
+    // Mettre à jour l'utilisateur et le tirage dans une transaction
+    await prisma.$transaction([
+      // Marquer comme révélé pour cet utilisateur
+      prisma.draw.update({
+        where: {
+          id: assignment.id,
+        },
+        data: {
+          isRevealed: true,
+        },
+      }),
+      // Mettre à jour le nom tiré pour l'utilisateur
+      prisma.user.update({
+        where: {
+          id: giverId,
+        },
+        data: {
+          nameOfPoll: assignment.receiver.name, // Supposant que le receiver a un champ 'name'
+        },
+      }),
+    ]);
+
+    return NextResponse.json({ userGift: assignment.receiver });
+  } catch (error) {
+    console.error("Error in secret santa draw:", error);
+    return NextResponse.json({ message: error.message }, { status: 500 });
   }
+}
+
+async function createInitialDraw(gen: number) {
+  const participants = await prisma.user.findMany({
+    where: { gen: gen },
+  });
+
+  if (participants.length < 2) {
+    throw new Error("Not enough participants");
+  }
+
+  const n = participants.length;
+  const indices = Array.from({ length: n }, (_, i) => i);
+
+  // Mélanger les indices
+  for (let i = n - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+
+  // Créer les assignments en base de données
+  await prisma.$transaction(
+    indices.map((_, i) => {
+      const giver = participants[indices[i]];
+      const receiver = participants[indices[(i + 1) % n]];
+
+      return prisma.draw.create({
+        data: {
+          giverId: giver.id,
+          receiverId: receiver.id,
+          gen: gen,
+          isRevealed: false,
+        },
+      });
+    })
+  );
 }

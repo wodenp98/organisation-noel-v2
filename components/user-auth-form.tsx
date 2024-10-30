@@ -77,7 +77,9 @@ export const UserAuthForm = ({
           </div>
 
           {errorMessage && (
-            <div className="text-red-500 text-sm">{errorMessage}</div>
+            <div className="text-red-500 text-sm">
+              Mauvais mot de passe ou nom d'utilisateur
+            </div>
           )}
 
           <SubmitButton />

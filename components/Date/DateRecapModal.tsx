@@ -69,7 +69,7 @@ export const DateRecapModal = () => {
           {isLoading ? "Chargement..." : "Voir le récapitulatif des votes"}
         </Button>
       </DialogTrigger>
-      <DialogContent className="w-[350px] md:max-w-3xl">
+      <DialogContent className="w-[350px] md:w-full">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold mb-4">
             Récapitulatif des votes

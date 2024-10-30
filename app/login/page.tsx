@@ -2,10 +2,10 @@ import { UserAuthForm } from "@/components/user-auth-form";
 
 export default function Page() {
   return (
-    <div className="flex flex-col min-h-screen overflow-hidden">
+    <div className="flex flex-col w-full min-h-screen overflow-hidden">
       <>
         <div className="container relative h-screen flex-col items-center justify-center ">
-          <div className="py-8">
+          <div className="pt-8">
             <div className="mx-auto flex flex-col justify-center space-y-6 w-[350px]">
               <div className="flex flex-col space-y-2 text-center">
                 <h1 className="text-4xl mb-20 font-semibold tracking-tight">

@@ -18,7 +18,7 @@ export async function AppSidebar() {
   const session = await auth();
 
   const items =
-    session.user?.nale === "Papy"
+    session.user?.name === "Papy"
       ? [
           {
             title: "Date",
