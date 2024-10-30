@@ -64,7 +64,7 @@ export const DateComponent = ({ userId }: { userId: string }) => {
 
     setIsLoading(true);
     try {
-      if (!user) {
+      if (!userId) {
         setAlert({
           type: "error",
           message: "Veuillez vous connecter à votre compte pour tirer",

@@ -11,13 +11,7 @@ type AlertType = {
   message: string;
 } | null;
 
-export const CadeauxComponent = ({
-  userId,
-  username,
-}: {
-  userId: string;
-  username: string;
-}) => {
+export const CadeauxComponent = ({ userId }: { userId: string }) => {
   const router = useRouter();
   const [drawnPerson, setDrawnPerson] = useState(null);
   const [alert, setAlert] = useState<AlertType>(null);
@@ -53,12 +47,8 @@ export const CadeauxComponent = ({
   }, [userId]);
 
   useEffect(() => {
-    if (username === "Papy") {
-      router.push("/");
-      return;
-    }
     fetchInitialData();
-  }, [userId, router, fetchInitialData, username]);
+  }, [userId, router, fetchInitialData]);
 
   const drawGift = async () => {
     try {
