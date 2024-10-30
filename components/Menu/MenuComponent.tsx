@@ -66,6 +66,7 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
           headers: {
             "Content-Type": "application/json",
           },
+          next: { revalidate: 0 },
         });
         const data = await response.json();
 
@@ -148,6 +149,9 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(cleanedData),
+        next: {
+          revalidate: 0,
+        },
       });
 
       const result = await response.json();

@@ -22,11 +22,19 @@ export const CadeauxComponent = ({ userId }: { userId: string }) => {
 
   const fetchInitialData = useCallback(async () => {
     try {
-      const drawingResponse = await fetch(`/api/user/${userId}`);
+      const drawingResponse = await fetch(`/api/user/${userId}`, {
+        next: {
+          revalidate: 0,
+        },
+      });
       const drawingData = await drawingResponse.json();
       setGen(drawingData.gen);
 
-      const drawResponse = await fetch(`/api/draw/${userId}`);
+      const drawResponse = await fetch(`/api/draw/${userId}`, {
+        next: {
+          revalidate: 0,
+        },
+      });
       const drawData = await drawResponse.json();
 
       if (drawData.isRevealed) {
@@ -69,6 +77,9 @@ export const CadeauxComponent = ({ userId }: { userId: string }) => {
           gen: gen,
           giverId: userId,
         }),
+        next: {
+          revalidate: 0,
+        },
       });
 
       if (!response.ok) {
