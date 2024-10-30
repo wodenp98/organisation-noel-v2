@@ -14,26 +14,28 @@ export default async function RootLayout({
   const session = await auth();
 
   return (
-    <html lang="fr">
-      <body className={`antialiased`}>
+    <html lang="fr" suppressHydrationWarning={true}>
+      <body className="antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <SessionProvider session={session}>
             <UserProvider>
-              {session ? (
-                <SidebarProvider>
-                  <AppSidebar />
-                  <main className="grow">
-                    <SidebarTrigger />
-                    <div className="flex flex-col min-h-screen overflow-hidden">
-                      {children}
-                    </div>
-                  </main>
-                </SidebarProvider>
-              ) : (
-                <div className="flex flex-col min-h-screen overflow-hidden">
-                  {children}
-                </div>
-              )}
+              <SidebarProvider>
+                {session ? (
+                  <>
+                    <AppSidebar />
+                    <main className="grow">
+                      <SidebarTrigger />
+                      <div className="flex flex-col min-h-screen overflow-hidden">
+                        {children}
+                      </div>
+                    </main>
+                  </>
+                ) : (
+                  <div className="flex flex-col min-h-screen overflow-hidden">
+                    {children}
+                  </div>
+                )}
+              </SidebarProvider>
             </UserProvider>
           </SessionProvider>
         </ThemeProvider>

@@ -70,7 +70,7 @@ export default function Cadeaux() {
       }
 
       const result = await response.json();
-      setDrawnPerson(result.userGift);
+      setDrawnPerson(result.userGift.name);
       setHasDrawn(true);
       setAlert({
         type: "success",

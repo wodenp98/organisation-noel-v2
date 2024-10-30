@@ -26,8 +26,6 @@ export async function POST(request: Request) {
         },
       });
 
-      console.log(participants);
-
       // Vérifier si des participants sont disponibles
       if (participants.length === 0) {
         return NextResponse.json(
