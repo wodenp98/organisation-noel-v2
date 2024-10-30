@@ -33,6 +33,8 @@ export const DateRecapModal = () => {
 
       const data = await response.json();
 
+      console.log(data);
+
       const organizedData: { [key: string]: User[] } = {
         vendredi: [],
         samedi: [],
@@ -47,6 +49,8 @@ export const DateRecapModal = () => {
           organizedData.nonVoted.push(user);
         }
       });
+
+      console.log(organizedData);
 
       setRecap(organizedData);
     } catch (error) {
@@ -64,6 +68,7 @@ export const DateRecapModal = () => {
   }, [isOpen]);
 
   const renderUserList = (users: User[]) => {
+    console.log(users);
     return users.map((user) => (
       <li key={user.id} className="py-1">
         {user.name}
