@@ -100,14 +100,6 @@ export const FamilyMenuRecapModal = () => {
           <DialogTitle className="text-xl font-bold mb-4">
             Récapitulatif des menus par famille
           </DialogTitle>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={fetchRecap}
-            disabled={isLoading}
-          >
-            {isLoading ? "..." : "Rafraîchir"}
-          </Button>
         </DialogHeader>
 
         {error && <div className="text-red-500 mb-4">{error}</div>}
