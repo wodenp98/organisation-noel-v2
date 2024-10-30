@@ -30,15 +30,17 @@ export async function GET() {
     await prisma.$disconnect();
     await prisma.$connect();
 
-    const users = await prisma.user.findMany(
-      {
-        select: {
-          family: true,
-          entries: true,
-          flat: true,
-          desserts: true,
-          alcoholSoft: true,
-        },
+    const users = await prisma.$transaction(
+      async (tx) => {
+        return tx.user.findMany({
+          select: {
+            family: true,
+            entries: true,
+            flat: true,
+            desserts: true,
+            alcoholSoft: true,
+          },
+        });
       },
       {
         isolationLevel: "ReadUncommitted", // This ensures we get the latest data
