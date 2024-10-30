@@ -21,11 +21,13 @@ export const DateComponent = ({ userId }: { userId: string }) => {
   useEffect(() => {
     const fetchPollDate = async () => {
       try {
-        const response = await fetch(`/api/user/${userId}`, {
+        const response = await fetch("/api/pollRecap", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
+          cache: "no-store",
+          next: { revalidate: 0 }, // Force revalidation
         });
 
         if (!response.ok) {
