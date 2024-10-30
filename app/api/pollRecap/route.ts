@@ -11,6 +11,8 @@ export async function GET() {
       },
     });
 
+    console.log(users);
+
     return NextResponse.json(users, { status: 200 });
   } catch (error) {
     return NextResponse.json(
