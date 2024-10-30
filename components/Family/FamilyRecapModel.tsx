@@ -64,7 +64,11 @@ export const FamilyMenuRecapModal = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="mt-4 w-full" onClick={fetchRecap}>
+        <Button
+          variant="outline"
+          className="mt-4 w-full"
+          onClick={async () => await fetchRecap()}
+        >
           {isLoading
             ? "Chargement..."
             : "Voir le récapitulatif des menus par famille"}
