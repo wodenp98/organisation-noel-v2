@@ -17,7 +17,6 @@ export async function PUT(request: NextRequest) {
         },
       });
 
-      // Immédiatement récupérer les données mises à jour
       const allUsers = await tx.user.findMany({
         select: {
           id: true,

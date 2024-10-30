@@ -36,6 +36,17 @@ export async function POST(request: Request) {
       data: updatedData,
     });
 
+    await prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        entries: true,
+        flat: true,
+        desserts: true,
+        alcoholSoft: true,
+      },
+    });
+
     return NextResponse.json({ success: true, user });
   } catch (error) {
     console.error("Error updating menu:", error);

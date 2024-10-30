@@ -35,6 +35,8 @@ export async function GET() {
       },
     });
 
+    console.log(users);
+
     const organizedData = users.reduce<OrganizedData>((acc, user) => {
       const family = user.family || "Autre";
 
@@ -55,6 +57,8 @@ export async function GET() {
       return acc;
     }, {});
 
+    console.log(organizedData);
+
     const result = Object.entries(organizedData).reduce<FinalResult>(
       (acc, [family, items]) => {
         acc[family] = {
@@ -67,6 +71,8 @@ export async function GET() {
       },
       {}
     );
+
+    console.log(result);
 
     const response = NextResponse.json(result, { status: 200 });
 
