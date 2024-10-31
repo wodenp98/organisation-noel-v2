@@ -80,7 +80,7 @@ export const DateRecapModal = () => {
     bgColor = "bg-gray-800"
   ) => (
     <div className={`p-4 rounded-lg ${bgColor}`}>
-      <h3 className="font-semibold mb-2">{title}</h3>
+      <h3 className="font-semibold mb-2 text-yellow-500">{title}</h3>
       {renderUserList(users)}
       <p className="mt-2 text-sm text-gray-400">
         Total: {users.length} personnes
@@ -110,14 +110,14 @@ export const DateRecapModal = () => {
         ) : (
           organizedData && (
             <div className="grid gap-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 text-white gap-4">
                 {renderCategory("Vendredi", organizedData.vendredi)}
                 {renderCategory("Samedi", organizedData.samedi)}
                 {renderCategory("Les deux jours", organizedData["les-deux"])}
               </div>
 
               {organizedData.nonVoted.length > 0 && (
-                <div className="mt-4">
+                <div className="mt-4 text-white">
                   {renderCategory(
                     "N'ont pas encore voté",
                     organizedData.nonVoted,
