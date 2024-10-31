@@ -5,13 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FamilyMenuRecapModal } from "@/components/Family/FamilyRecapModel";
-
-type AlertType = {
-  type: "error" | "success" | "info";
-  message: string;
-} | null;
+import { useToast } from "@/hooks/use-toast";
 
 interface FormData {
   [key: string]: string | number | null | undefined;
@@ -33,7 +28,7 @@ type FormState = {
 };
 
 export const MenuComponent = ({ userId }: { userId: string }) => {
-  const [alert, setAlert] = useState<AlertType>(null);
+  const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [formState, setFormState] = useState<FormState>({
     entree1: "",
@@ -86,12 +81,11 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
           });
         }
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "An unknown error occurred";
-
-        setAlert({
-          type: "error",
-          message: message,
+        toast({
+          variant: "destructive",
+          title: "Une erreur est survenue",
+          description:
+            error instanceof Error ? error.message : "Une erreur est survenue",
         });
       } finally {
         setLoading(false);
@@ -101,7 +95,7 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
     if (userId) {
       fetchExistingChoices();
     }
-  }, [userId]);
+  }, [userId, toast]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -112,18 +106,18 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
       (formState.hasSecondDessert && !formState.dessert2?.trim()) ||
       (formState.hasSecondAlcohol && !formState.alcohol2?.trim())
     ) {
-      setAlert({
-        type: "error",
-        message: "Veuillez remplir tous les seconds choix activés",
+      toast({
+        variant: "destructive",
+        description: "Veuillez remplir tous les seconds choix activés",
       });
       return;
     }
 
     try {
       if (!userId) {
-        setAlert({
-          type: "error",
-          message: "Veuillez vous connecter à votre compte pour tirer",
+        toast({
+          variant: "destructive",
+          description: "Veuillez vous connecter à votre compte pour tirer",
         });
         return;
       }
@@ -152,9 +146,8 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
       const result = await response.json();
 
       if (result.success) {
-        setAlert({
-          type: "success",
-          message: "Vos choix ont été enregistrés",
+        toast({
+          description: "Vos choix ont été enregistrés",
         });
 
         setFormState((prev) => ({
@@ -165,18 +158,16 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
           alcohol2: formState.hasSecondAlcohol ? prev.alcohol2 : "",
         }));
       } else {
-        setAlert({
-          type: "error",
-          message: result.message || "Une erreur est survenue",
+        toast({
+          variant: "destructive",
+          description: result.message || "Une erreur est survenue",
         });
       }
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "An unknown error occurred";
-
-      setAlert({
-        type: "error",
-        message: message,
+      toast({
+        variant: "destructive",
+        description:
+          error instanceof Error ? error.message : "Une erreur est survenue",
       });
     }
   };
@@ -222,18 +213,6 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
   }
   return (
     <CardContent>
-      {alert && (
-        <Alert
-          className={`mb-4 ${
-            alert.type === "error"
-              ? "bg-red-100 text-red-800"
-              : "bg-green-100 text-green-800"
-          }`}
-        >
-          <AlertDescription>{alert.message}</AlertDescription>
-        </Alert>
-      )}
-
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Entrées */}
         <div className="space-y-4">
