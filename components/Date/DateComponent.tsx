@@ -4,15 +4,9 @@ import { CardContent, CardFooter } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DateRecapModal } from "@/components/Date/DateRecapModal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-
-type AlertType = {
-  type: "error" | "success" | "info";
-  message: string;
-} | null;
 
 // Type pour les données de l'utilisateur
 type UserPollData = {
@@ -47,7 +41,6 @@ const updatePollDate = async ({
 export const DateComponent = ({ userId }: { userId: string }) => {
   const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [alert, setAlert] = useState<AlertType>(null);
   const [isDisabled, setIsDisabled] = useState(false);
   const queryClient = useQueryClient();
 
@@ -84,29 +77,18 @@ export const DateComponent = ({ userId }: { userId: string }) => {
       setSelectedDate(updatedUser.pollDate);
       setIsDisabled(true);
 
-      // Toast et alerte
       toast({
         title: "Vote enregistré",
         description: `Votre choix pour ${updatedUser.pollDate} a été enregistré.`,
-      });
-      setAlert({
-        type: "success",
-        message: `Vote enregistré pour: ${updatedUser.pollDate}`,
       });
     },
     onError: (error) => {
       const errorMessage =
         error instanceof Error ? error.message : "Une erreur est survenue";
 
-      setAlert({
-        type: "error",
-        message: errorMessage,
-      });
-
       toast({
-        title: "Erreur",
-        description: errorMessage,
         variant: "destructive",
+        description: errorMessage,
       });
     },
   });
@@ -124,9 +106,9 @@ export const DateComponent = ({ userId }: { userId: string }) => {
     if (selectedDate) {
       mutation.mutate({ userId, pollDate: selectedDate });
     } else {
-      setAlert({
-        type: "error",
-        message: "Veuillez sélectionner une date",
+      toast({
+        description: "Veuillez sélectionner une date",
+        variant: "destructive",
       });
     }
   };
@@ -144,11 +126,6 @@ export const DateComponent = ({ userId }: { userId: string }) => {
 
   return (
     <CardContent className="pb-0">
-      {alert && (
-        <Alert className={`mb-4 ${alert.type === "error" ? "bg-red-700" : ""}`}>
-          <AlertDescription>{alert.message}</AlertDescription>
-        </Alert>
-      )}
       <form onSubmit={handleSubmit}>
         <RadioGroup
           value={selectedDate ?? ""}
