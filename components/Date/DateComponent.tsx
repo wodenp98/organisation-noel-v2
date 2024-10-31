@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -51,7 +51,7 @@ export const DateComponent = ({ userId }: { userId: string }) => {
   const [isDisabled, setIsDisabled] = useState(false);
   const queryClient = useQueryClient();
 
-  useQuery({
+  const { data } = useQuery({
     queryKey: ["pollData", userId],
     queryFn: async () => {
       const response = await fetch(`/api/pollRecap/${userId}`);
@@ -62,22 +62,15 @@ export const DateComponent = ({ userId }: { userId: string }) => {
             "Une erreur est survenue lors de la récupération de la date."
         );
       }
-      const data = await response.json();
-      if (data) {
-        setSelectedDate(data.pollDate);
-        setIsDisabled(true);
-      }
-      return data;
+      return response.json();
     },
     enabled: Boolean(userId),
-    onError: (error) => {
-      toast({
-        title: "Erreur",
-        description:
-          error instanceof Error ? error.message : "Une erreur est survenue",
-        variant: "destructive",
-      });
+    select: (data) => {
+      // Transform data if necessary
+      return data;
     },
+    retry: 1,
+    retryDelay: 1000,
   });
 
   // Mutation pour mettre à jour la date
@@ -117,6 +110,14 @@ export const DateComponent = ({ userId }: { userId: string }) => {
       });
     },
   });
+
+  useEffect(() => {
+    if (data) {
+      // Vous pouvez déjà faire cela dans onSuccess, mais voici une alternative
+      setSelectedDate(data.pollDate);
+      setIsDisabled(!!data.pollDate); // Désactive si une date existe déjà
+    }
+  }, [data]);
 
   // Fonction de soumission
   const onVoteSubmit = (selectedDate: string | null) => {

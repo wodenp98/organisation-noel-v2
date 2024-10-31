@@ -31,7 +31,8 @@ export const CadeauxComponent = ({ userId }: { userId: string }) => {
     } catch (error) {
       toast({
         variant: "destructive",
-        description: error.message,
+        description:
+          error instanceof Error ? error.message : "Une erreur est survenue",
       });
     } finally {
       setIsLoading(false);
@@ -79,7 +80,8 @@ export const CadeauxComponent = ({ userId }: { userId: string }) => {
     } catch (error) {
       toast({
         variant: "destructive",
-        description: error.message,
+        description:
+          error instanceof Error ? error.message : "Une erreur est survenue",
       });
     } finally {
       setIsRevealing(false);

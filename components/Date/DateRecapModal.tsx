@@ -37,7 +37,7 @@ const fetchRecap = async (): Promise<User[]> => {
 
 const organizeUserData = (users: User[]): OrganizedData => {
   return users.reduce(
-    (acc, user) => {
+    (acc: any, user) => {
       const category = user.pollDate || "nonVoted";
       acc[category].push(user);
       return acc;
@@ -59,7 +59,6 @@ export const DateRecapModal = () => {
     queryFn: fetchRecap,
     enabled: isOpen,
     staleTime: 30000,
-    cacheTime: 5 * 60 * 1000,
     refetchInterval: isOpen ? 30000 : false, // Poll every 30 seconds when modal is open
   });
 

@@ -84,7 +84,8 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
         toast({
           variant: "destructive",
           title: "Une erreur est survenue",
-          description: error.message,
+          description:
+            error instanceof Error ? error.message : "Une erreur est survenue",
         });
       } finally {
         setLoading(false);
@@ -146,7 +147,6 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
 
       if (result.success) {
         toast({
-          variant: "success",
           description: "Vos choix ont été enregistrés",
         });
 
@@ -159,14 +159,15 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
         }));
       } else {
         toast({
-          variant: "error",
+          variant: "destructive",
           description: result.message || "Une erreur est survenue",
         });
       }
     } catch (error) {
       toast({
         variant: "destructive",
-        description: error.message,
+        description:
+          error instanceof Error ? error.message : "Une erreur est survenue",
       });
     }
   };
