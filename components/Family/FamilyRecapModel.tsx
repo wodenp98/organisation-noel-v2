@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useMenuRecap } from "@/hooks/useMenuRecap";
 import {
   Dialog,
+  DialogDescription,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -49,6 +50,7 @@ export const FamilyMenuRecapModal = () => {
           <DialogTitle className="text-xl font-bold mb-4">
             Récapitulatif des menus par famille
           </DialogTitle>
+          <DialogDescription />
         </DialogHeader>
 
         {isLoading ? (

@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Dialog,
+  DialogDescription,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -100,6 +101,7 @@ export const DateRecapModal = () => {
           <DialogTitle className="text-xl font-bold mb-4">
             Récapitulatif des votes
           </DialogTitle>
+          <DialogDescription />
         </DialogHeader>
 
         {isLoading ? (
