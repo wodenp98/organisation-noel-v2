@@ -29,7 +29,7 @@ const updatePollDate = async ({
   pollDate: string | null;
 }): Promise<UserPollData> => {
   const response = await fetch("/api/pollRecap", {
-    method: "PUT",
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
