@@ -3,18 +3,13 @@ import React, { useState, useCallback, useEffect } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { motion, AnimatePresence } from "framer-motion";
-
-type AlertType = {
-  type: "error" | "success" | "info";
-  message: string;
-} | null;
+import { useToast } from "@/hooks/use-toast";
 
 export const CadeauxComponent = ({ userId }: { userId: string }) => {
+  const { toast } = useToast();
   const router = useRouter();
   const [drawnPerson, setDrawnPerson] = useState(null);
-  const [alert, setAlert] = useState<AlertType>(null);
   const [gen, setGen] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasDrawn, setHasDrawn] = useState(false);
@@ -34,17 +29,14 @@ export const CadeauxComponent = ({ userId }: { userId: string }) => {
         setHasDrawn(true);
       }
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "An unknown error occurred";
-
-      setAlert({
-        type: "error",
-        message: message,
+      toast({
+        variant: "destructive",
+        description: error.message,
       });
     } finally {
       setIsLoading(false);
     }
-  }, [userId]);
+  }, [userId, toast]);
 
   useEffect(() => {
     fetchInitialData();
@@ -53,9 +45,9 @@ export const CadeauxComponent = ({ userId }: { userId: string }) => {
   const drawGift = async () => {
     try {
       if (!userId) {
-        setAlert({
-          type: "error",
-          message: "Veuillez vous connecter à votre compte pour tirer",
+        toast({
+          variant: "destructive",
+          description: "Veuillez vous connecter à votre compte pour tirer",
         });
         return;
       }
@@ -81,17 +73,13 @@ export const CadeauxComponent = ({ userId }: { userId: string }) => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setDrawnPerson(result.userGift.name);
       setHasDrawn(true);
-      setAlert({
-        type: "success",
-        message: "Le tirage a été effectué avec succès !",
+      toast({
+        description: "Le tirage a été effectué avec succès !",
       });
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "An unknown error occurred";
-
-      setAlert({
-        type: "error",
-        message: message,
+      toast({
+        variant: "destructive",
+        description: error.message,
       });
     } finally {
       setIsRevealing(false);
@@ -110,22 +98,6 @@ export const CadeauxComponent = ({ userId }: { userId: string }) => {
   return (
     <>
       <CardContent>
-        {alert && (
-          <AnimatePresence>
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-            >
-              <Alert
-                className={`mb-4 ${alert.type === "error" ? "bg-red-800" : ""}`}
-              >
-                <AlertDescription>{alert.message}</AlertDescription>
-              </Alert>
-            </motion.div>
-          </AnimatePresence>
-        )}
-
         <AnimatePresence mode="wait">
           {hasDrawn ? (
             <motion.div
