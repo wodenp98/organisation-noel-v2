@@ -97,7 +97,7 @@ export const FamilyMenuRecapModal = () => {
       </DialogTrigger>
       <DialogContent className="w-[350px] md:w-[50vw] max-h-[80vh] overflow-auto bg-gray-900 p-6 rounded-lg">
         <DialogHeader className="flex justify-between items-center">
-          <DialogTitle className="text-xl font-bold mb-4">
+          <DialogTitle className="text-xl text-white font-bold mb-4">
             Récapitulatif des menus par famille
           </DialogTitle>
         </DialogHeader>
