@@ -15,7 +15,7 @@ export const FamilyMenuRecapModal = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { recap, isLoading } = useMenuRecap(isOpen);
 
-  const renderFamilyRecap = (family: string, items: MenuItems) => (
+  const renderFamilyRecap = (family: string, items: any) => (
     <div key={family} className="p-4 rounded-lg bg-gray-800">
       <h3 className="font-semibold mb-2 text-yellow-500">Famille: {family}</h3>
       <ul className="pl-4 text-sm text-gray-300 space-y-2">

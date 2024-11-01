@@ -38,6 +38,13 @@ interface MenuResponse {
   };
 }
 
+interface MenuUpdates {
+  entries?: string;
+  flat?: string;
+  desserts?: string;
+  alcoholSoft?: string;
+}
+
 export const MenuComponent = ({ userId }: { userId: string }) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -51,7 +58,6 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
       return response.json();
     },
     staleTime: 30000, // Consider data fresh for 30 seconds
-    cacheTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
   const [formState, setFormState] = useState<MenuFormState>({
@@ -202,8 +208,8 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
         [field]: !prev[field],
       };
 
-      if (!newState[field] && fieldMapping[field]) {
-        newState[fieldMapping[field]] = null;
+      if (fieldMapping[field] in newState) {
+        (newState as any)[fieldMapping[field]] = null;
       }
 
       return newState;

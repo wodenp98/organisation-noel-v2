@@ -1,6 +1,33 @@
 import { prisma } from "@/utils/prisma/prisma";
 import { NextResponse } from "next/server";
 
+interface MenuUpdates {
+  entries?: string;
+  flat?: string;
+  desserts?: string;
+  alcoholSoft?: string;
+}
+
+interface FamilyAggregation {
+  entries: Array<string>;
+  flat: Array<string>;
+  desserts: Array<string>;
+  alcoholSoft: Array<string>;
+}
+
+interface RecapData {
+  [key: string]: FamilyAggregation;
+}
+
+interface FinalResult {
+  [key: string]: {
+    entries: string[];
+    flat: string[];
+    desserts: string[];
+    alcoholSoft: string[];
+  };
+}
+
 export async function GET() {
   try {
     const users = await prisma.user.findMany({
@@ -58,12 +85,15 @@ export async function POST(request: Request) {
     }
 
     // Filter out undefined values
-    const validUpdates = Object.entries(updates).reduce((acc, [key, value]) => {
-      if (value !== undefined) {
-        acc[key] = value;
-      }
-      return acc;
-    }, {} as MenuUpdates);
+    const validUpdates = Object.entries(updates).reduce<FinalResult>(
+      (acc, [key, value]) => {
+        if (value !== undefined) {
+          acc[key] = value;
+        }
+        return acc;
+      },
+      {}
+    );
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },

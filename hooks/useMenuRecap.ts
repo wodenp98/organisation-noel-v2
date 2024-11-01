@@ -2,6 +2,17 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const MENU_RECAP_KEY = ["menuRecap"];
 
+interface FamilyAggregation {
+  entries: Array<string>;
+  flat: Array<string>;
+  desserts: Array<string>;
+  alcoholSoft: Array<string>;
+}
+
+interface RecapData {
+  [key: string]: FamilyAggregation;
+}
+
 export const useMenuRecap = (enabled: boolean = true) => {
   const queryClient = useQueryClient();
 
@@ -13,7 +24,7 @@ export const useMenuRecap = (enabled: boolean = true) => {
     return response.json();
   };
 
-  const updateMenu = async (input: UpdateMenuInput) => {
+  const updateMenu = async (input: any) => {
     const response = await fetch("/api/menuRecap", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
