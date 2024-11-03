@@ -1,14 +1,21 @@
 import { prisma } from "@/utils/prisma/prisma";
 import { NextResponse } from "next/server";
 
-interface FamilyAggregation {
-  entries: Set<string>;
-  flat: Set<string>;
-  desserts: Set<string>;
-  alcoholSoft: Set<string>;
+interface MenuUpdates {
+  entries?: string;
+  flat?: string;
+  desserts?: string;
+  alcoholSoft?: string;
 }
 
-interface OrganizedData {
+interface FamilyAggregation {
+  entries: Array<string>;
+  flat: Array<string>;
+  desserts: Array<string>;
+  alcoholSoft: Array<string>;
+}
+
+interface RecapData {
   [key: string]: FamilyAggregation;
 }
 
@@ -21,79 +28,90 @@ interface FinalResult {
   };
 }
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-
 export async function GET() {
   try {
-    await prisma.$disconnect();
-    await prisma.$connect();
-
-    const users = await prisma.$transaction(
-      async (tx) => {
-        return tx.user.findMany({
-          select: {
-            family: true,
-            entries: true,
-            flat: true,
-            desserts: true,
-            alcoholSoft: true,
-          },
-        });
+    const users = await prisma.user.findMany({
+      select: {
+        family: true,
+        entries: true,
+        flat: true,
+        desserts: true,
+        alcoholSoft: true,
       },
-      {
-        isolationLevel: "ReadUncommitted",
-      }
-    );
+      orderBy: {
+        family: "asc",
+      },
+    });
 
-    const organizedData = users.reduce<OrganizedData>((acc, user) => {
+    const organizedData = users.reduce<RecapData>((acc, user) => {
       const family = user.family || "Autre";
       if (!acc[family]) {
         acc[family] = {
-          entries: new Set<string>(),
-          flat: new Set<string>(),
-          desserts: new Set<string>(),
-          alcoholSoft: new Set<string>(),
+          entries: [],
+          flat: [],
+          desserts: [],
+          alcoholSoft: [],
         };
       }
 
-      if (user.entries) acc[family].entries.add(user.entries);
-      if (user.flat) acc[family].flat.add(user.flat);
-      if (user.desserts) acc[family].desserts.add(user.desserts);
-      if (user.alcoholSoft) acc[family].alcoholSoft.add(user.alcoholSoft);
+      if (user.entries) acc[family].entries.push(user.entries);
+      if (user.flat) acc[family].flat.push(user.flat);
+      if (user.desserts) acc[family].desserts.push(user.desserts);
+      if (user.alcoholSoft) acc[family].alcoholSoft.push(user.alcoholSoft);
 
       return acc;
     }, {});
 
-    const result = Object.entries(organizedData).reduce<FinalResult>(
-      (acc, [family, items]) => {
-        acc[family] = {
-          entries: Array.from(items.entries),
-          flat: Array.from(items.flat),
-          desserts: Array.from(items.desserts),
-          alcoholSoft: Array.from(items.alcoholSoft),
-        };
+    return NextResponse.json(organizedData);
+  } catch (error) {
+    console.error("Error fetching menu data:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch menu data" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const { userId, updates }: { userId: string; updates: MenuUpdates } =
+      await request.json();
+
+    if (!userId || !updates) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    const validUpdates = Object.entries(updates).reduce<FinalResult>(
+      (acc, [key, value]) => {
+        if (value !== undefined) {
+          acc[key] = value;
+        }
         return acc;
       },
       {}
     );
 
-    const response = NextResponse.json(result, { status: 200 });
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: validUpdates,
+      select: {
+        id: true,
+        family: true,
+        entries: true,
+        flat: true,
+        desserts: true,
+        alcoholSoft: true,
+      },
+    });
 
-    response.headers.set(
-      "Cache-Control",
-      "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
-    );
-    response.headers.set("Pragma", "no-cache");
-    response.headers.set("Expires", "-1");
-    response.headers.set("Surrogate-Control", "no-store");
-    response.headers.set("X-Accel-Expires", "0");
-
-    return response;
+    return NextResponse.json(updatedUser);
   } catch (error) {
-    console.error("API Error:", error);
+    console.error("Error updating menu:", error);
     return NextResponse.json(
-      { message: (error as Error).message },
+      { error: "Failed to update menu" },
       { status: 500 }
     );
   }

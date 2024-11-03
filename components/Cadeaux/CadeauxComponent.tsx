@@ -117,10 +117,6 @@ export const CadeauxComponent = ({ userId }: { userId: string }) => {
               className="text-center"
             >
               <p className="mb-4">
-                {gen === 1 ? "3" : "7"} participants sont inscrits pour le
-                tirage au sort.
-              </p>
-              <p className="mb-4">
                 Cliquez sur le bouton ci-dessous pour découvrir à qui vous devez
                 offrir un cadeau.
               </p>

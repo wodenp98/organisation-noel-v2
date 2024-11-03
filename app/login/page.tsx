@@ -1,6 +1,13 @@
 import { UserAuthForm } from "@/components/user-auth-form";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+export default async function Page() {
+  const session = await auth();
 
-export default function Page() {
+  if (session) {
+    redirect("/");
+  }
+
   return (
     <div className="flex flex-col w-full min-h-screen overflow-hidden">
       <>

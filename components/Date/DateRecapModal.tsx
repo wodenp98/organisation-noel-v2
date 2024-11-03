@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Dialog,
+  DialogDescription,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -59,7 +60,7 @@ export const DateRecapModal = () => {
     queryFn: fetchRecap,
     enabled: isOpen,
     staleTime: 30000,
-    refetchInterval: isOpen ? 30000 : false, // Poll every 30 seconds when modal is open
+    refetchInterval: isOpen ? 30000 : false,
   });
 
   const organizedData = users ? organizeUserData(users) : null;
@@ -100,6 +101,7 @@ export const DateRecapModal = () => {
           <DialogTitle className="text-xl font-bold mb-4">
             Récapitulatif des votes
           </DialogTitle>
+          <DialogDescription />
         </DialogHeader>
 
         {isLoading ? (
