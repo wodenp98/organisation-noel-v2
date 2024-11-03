@@ -8,7 +8,6 @@ import { DateRecapModal } from "@/components/Date/DateRecapModal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 
-// Type pour les données de l'utilisateur
 type UserPollData = {
   id: string;
   name: string;
@@ -59,21 +58,17 @@ export const DateComponent = ({ userId }: { userId: string }) => {
     },
     enabled: Boolean(userId),
     select: (data) => {
-      // Transform data if necessary
       return data;
     },
     retry: 1,
     retryDelay: 1000,
   });
 
-  // Mutation pour mettre à jour la date
   const mutation = useMutation({
     mutationFn: updatePollDate,
     onSuccess: (updatedUser) => {
-      // Mise à jour du cache
       queryClient.setQueryData(["pollData", userId], updatedUser);
 
-      // Mise à jour de l'état local
       setSelectedDate(updatedUser.pollDate);
       setIsDisabled(true);
 
@@ -95,13 +90,11 @@ export const DateComponent = ({ userId }: { userId: string }) => {
 
   useEffect(() => {
     if (data) {
-      // Vous pouvez déjà faire cela dans onSuccess, mais voici une alternative
       setSelectedDate(data.pollDate);
-      setIsDisabled(!!data.pollDate); // Désactive si une date existe déjà
+      setIsDisabled(!!data.pollDate);
     }
   }, [data]);
 
-  // Fonction de soumission
   const onVoteSubmit = (selectedDate: string | null) => {
     if (selectedDate) {
       mutation.mutate({ userId, pollDate: selectedDate });
@@ -113,7 +106,6 @@ export const DateComponent = ({ userId }: { userId: string }) => {
     }
   };
 
-  // Fonction pour gérer la soumission du formulaire
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     onVoteSubmit(selectedDate);

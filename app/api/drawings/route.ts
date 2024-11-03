@@ -138,12 +138,10 @@ interface Assignment {
 function isInHasForList(giver: Participant, receiver: Participant): boolean {
   if (!giver.hasFor) return false;
 
-  // Split the hasFor string into an array of names
   const hasForList = giver.hasFor
     .split(",")
     .map((name) => name.toLowerCase().trim());
 
-  // Check if the receiver's name is in the hasFor list
   return hasForList.includes(receiver.name);
 }
 
@@ -154,19 +152,17 @@ function generateValidAssignments(participants: Participant[]): Assignment[] {
     const tempParticipants = [...participants];
 
     for (const giver of tempParticipants) {
-      // Find valid receivers (anyone except self, those in hasFor, and those already assigned)
       const validReceivers = availableReceivers.filter(
         (receiver) =>
-          receiver.id !== giver.id && // Not self
-          !isInHasForList(giver, receiver) && // Not in hasFor list (siblings)
-          !assignments.some((a) => a.receiver.id === receiver.id) // Not already assigned
+          receiver.id !== giver.id &&
+          !isInHasForList(giver, receiver) &&
+          !assignments.some((a) => a.receiver.id === receiver.id)
       );
 
       if (validReceivers.length === 0) {
-        return null; // No valid solution found
+        return null;
       }
 
-      // Select a random receiver from valid receivers
       const selectedReceiver =
         validReceivers[Math.floor(Math.random() * validReceivers.length)];
 
@@ -175,7 +171,6 @@ function generateValidAssignments(participants: Participant[]): Assignment[] {
         receiver: selectedReceiver,
       });
 
-      // Remove selected receiver from available pool
       const receiverIndex = availableReceivers.findIndex(
         (r) => r.id === selectedReceiver.id
       );
@@ -185,7 +180,6 @@ function generateValidAssignments(participants: Participant[]): Assignment[] {
     return assignments;
   };
 
-  // Try multiple times to generate a valid distribution
   for (let attempt = 0; attempt < 100; attempt++) {
     const result = tryGenerateAssignments();
     if (result) return result;

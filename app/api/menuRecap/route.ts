@@ -84,7 +84,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Filter out undefined values
     const validUpdates = Object.entries(updates).reduce<FinalResult>(
       (acc, [key, value]) => {
         if (value !== undefined) {

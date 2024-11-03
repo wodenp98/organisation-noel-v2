@@ -45,7 +45,6 @@ export const useMenuRecap = (enabled: boolean = true) => {
   const mutation = useMutation({
     mutationFn: updateMenu,
     onSuccess: () => {
-      // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: MENU_RECAP_KEY });
     },
   });

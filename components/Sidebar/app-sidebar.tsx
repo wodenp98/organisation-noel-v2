@@ -1,5 +1,4 @@
 import { Gift, CalendarClock, ChefHat } from "lucide-react";
-import { ToggleDarkMode } from "@/components/Theme/Theme";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import {
@@ -11,8 +10,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarFooter,
 } from "@/components/ui/sidebar";
+import { SidebarFooterComponent } from "@/components/Sidebar/SidebarFooterComponent";
 
 export async function AppSidebar() {
   const session = await auth();
@@ -74,12 +73,7 @@ export async function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
-        <div className="flex items-center justify-evenly">
-          <p>{session.user?.name}</p>
-          <ToggleDarkMode />
-        </div>
-      </SidebarFooter>
+      <SidebarFooterComponent name={session.user?.name as string} />
     </Sidebar>
   );
 }

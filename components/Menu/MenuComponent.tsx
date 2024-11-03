@@ -49,7 +49,6 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Single query for menu data
   const { data: menuData, isLoading } = useQuery<MenuResponse>({
     queryKey: ["menu", userId],
     queryFn: async () => {
@@ -57,7 +56,7 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
       if (!response.ok) throw new Error("Failed to fetch menu");
       return response.json();
     },
-    staleTime: 30000, // Consider data fresh for 30 seconds
+    staleTime: 30000,
   });
 
   const [formState, setFormState] = useState<MenuFormState>({
@@ -142,7 +141,6 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
       return;
     }
 
-    // Validation des seconds choix
     if (
       (formState.hasSecondEntries && !formState.entries2?.trim()) ||
       (formState.hasSecondFlat && !formState.flat2?.trim()) ||

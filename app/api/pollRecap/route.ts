@@ -1,4 +1,3 @@
-// app/api/pollRecap/route.ts
 import { prisma } from "@/utils/prisma/prisma";
 import { NextResponse } from "next/server";
 
