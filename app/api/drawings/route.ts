@@ -139,7 +139,9 @@ function isInHasForList(giver: Participant, receiver: Participant): boolean {
   if (!giver.hasFor) return false;
 
   // Split the hasFor string into an array of names
-  const hasForList = giver.hasFor.split(",").map((name) => name.trim());
+  const hasForList = giver.hasFor
+    .split(",")
+    .map((name) => name.toLowerCase().trim());
 
   // Check if the receiver's name is in the hasFor list
   return hasForList.includes(receiver.name);
