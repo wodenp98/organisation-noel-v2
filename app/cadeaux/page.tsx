@@ -1,4 +1,4 @@
-import { Card, CardHeader } from "@/components/ui/card";
+import { Card, CardHeader, CardDescription } from "@/components/ui/card";
 import { CadeauxComponent } from "@/components/Cadeaux/CadeauxComponent";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
@@ -14,6 +14,9 @@ export default async function Cadeaux() {
       <CardHeader className="text-2xl text-center font-bold">
         Tirage au sort
       </CardHeader>
+      <CardDescription className="text-center mb-4">
+        Chacun fait un cadeau selon ses moyens
+      </CardDescription>
       <CadeauxComponent userId={session.user.id} />
     </Card>
   );
