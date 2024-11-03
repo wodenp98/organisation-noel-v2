@@ -1,6 +1,5 @@
 import { Card, CardHeader, CardDescription } from "@/components/ui/card";
 import { CadeauxComponent } from "@/components/Cadeaux/CadeauxComponent";
-import { WrenchIcon, ClockIcon } from "lucide-react";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 export default async function Cadeaux() {
