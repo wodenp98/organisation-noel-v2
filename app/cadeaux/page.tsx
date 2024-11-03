@@ -11,7 +11,9 @@ export default async function Cadeaux() {
 
   return (
     <Card className="w-[350px] md:w-full max-w-md mx-auto">
-      <CardHeader className="text-2xl font-bold">Tirage au sort</CardHeader>
+      <CardHeader className="text-2xl text-center font-bold">
+        Tirage au sort
+      </CardHeader>
       <CadeauxComponent userId={session.user.id} />
     </Card>
   );
