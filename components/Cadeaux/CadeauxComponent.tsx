@@ -10,7 +10,6 @@ export const CadeauxComponent = ({ userId }: { userId: string }) => {
   const { toast } = useToast();
   const router = useRouter();
   const [drawnPerson, setDrawnPerson] = useState(null);
-  const [gen, setGen] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasDrawn, setHasDrawn] = useState(false);
   const [isRevealing, setIsRevealing] = useState(false);
@@ -59,7 +58,6 @@ export const CadeauxComponent = ({ userId }: { userId: string }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          gen: gen,
           giverId: userId,
         }),
       });

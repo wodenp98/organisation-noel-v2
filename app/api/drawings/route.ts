@@ -2,7 +2,7 @@ import { prisma } from "@/utils/prisma/prisma";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
-  const { giverId, gen } = await request.json();
+  const { giverId } = await request.json();
   try {
     const giver = await prisma.user.findUnique({
       where: { id: giverId },
@@ -18,20 +18,20 @@ export async function POST(request: Request) {
       );
     }
 
-    const existingDraw = await prisma.draw.findFirst({
+    const existingDraws = await prisma.draw.findFirst({
       where: {
-        gen: gen,
+        OR: [{ gen: 1 }, { gen: 2 }],
       },
     });
 
-    if (!existingDraw) {
-      await createInitialDraw(gen);
+    if (!existingDraws) {
+      await createInitialDraw(); // Retrait du paramètre gen
     }
 
     const assignment = await prisma.draw.findFirst({
       where: {
         giverId: giverId,
-        gen: gen,
+        OR: [{ gen: 1 }, { gen: 2 }],
       },
       include: {
         receiver: true,
@@ -74,7 +74,8 @@ export async function POST(request: Request) {
   }
 }
 
-async function createInitialDraw(gen: number) {
+async function createInitialDraw() {
+  // Retrait du paramètre gen
   const participants = await prisma.user.findMany({
     where: {
       gen: { in: [1, 2] },
@@ -104,7 +105,7 @@ async function createInitialDraw(gen: number) {
             data: {
               giverId: assignment.giver.id,
               receiverId: assignment.receiver.id,
-              gen: gen,
+              gen: assignment.giver.gen,
               isRevealed: false,
             },
           });
