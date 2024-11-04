@@ -77,7 +77,7 @@ export async function POST(request: Request) {
 async function createInitialDraw(gen: number) {
   const participants = await prisma.user.findMany({
     where: {
-      AND: [{ gen: { in: [1, 2] } }],
+      gen: { in: [1, 2] },
     },
     select: {
       id: true,
@@ -142,7 +142,7 @@ function isInHasForList(giver: Participant, receiver: Participant): boolean {
     .split(",")
     .map((name) => name.toLowerCase().trim());
 
-  return hasForList.includes(receiver.name);
+  return hasForList.includes(receiver.name.toLowerCase());
 }
 
 function generateValidAssignments(participants: Participant[]): Assignment[] {
