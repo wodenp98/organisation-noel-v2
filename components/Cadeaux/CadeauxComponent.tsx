@@ -16,10 +16,6 @@ export const CadeauxComponent = ({ userId }: { userId: string }) => {
 
   const fetchInitialData = useCallback(async () => {
     try {
-      const drawingResponse = await fetch(`/api/user/${userId}`);
-      const drawingData = await drawingResponse.json();
-      setGen(drawingData.gen);
-
       const drawResponse = await fetch(`/api/draw/${userId}`);
       const drawData = await drawResponse.json();
 
