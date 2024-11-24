@@ -40,7 +40,7 @@ const getMenuItemName = (
 
 export const AllMenusRecapModal = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { data: recap, isLoading, error } = useAllMenusRecap();
+  const { data: recap, isLoading, error } = useAllMenusRecap(isOpen);
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);

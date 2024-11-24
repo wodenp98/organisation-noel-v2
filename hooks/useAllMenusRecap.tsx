@@ -8,7 +8,7 @@ interface AllMenusRecap {
   desserts: string | null;
 }
 
-export function useAllMenusRecap() {
+export function useAllMenusRecap(isOpen: boolean) {
   return useQuery<AllMenusRecap[]>({
     queryKey: ["allMenusRecap"],
     queryFn: async () => {
@@ -18,5 +18,8 @@ export function useAllMenusRecap() {
       }
       return response.json();
     },
+    enabled: isOpen,
+    staleTime: 30000,
+    refetchInterval: isOpen ? 30000 : false,
   });
 }
