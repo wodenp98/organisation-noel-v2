@@ -16,6 +16,14 @@ interface UserMenu {
   menu: Menu;
 }
 
+interface AllMenusRecap {
+  name: string;
+  username: string;
+  entries: string | null;
+  flat: string | null;
+  desserts: string | null;
+}
+
 interface MenuUpdateData {
   entries?: string | null;
   flat?: string | null;
@@ -62,6 +70,9 @@ export function useMenu(userId: string | undefined) {
       });
 
       if (!response.ok) {
+        if (response.status === 304) {
+          return queryClient.getQueryData<UserMenu>(["menu", userId]);
+        }
         throw new Error(`Failed to update menu: ${response.statusText}`);
       }
 
@@ -69,12 +80,34 @@ export function useMenu(userId: string | undefined) {
     },
     onSuccess: (newData) => {
       queryClient.setQueryData(["menu", userId], newData);
-      queryClient.invalidateQueries({
+
+      queryClient.refetchQueries({
         queryKey: ["allMenusRecap"],
+        exact: true,
       });
+
+      queryClient.setQueriesData<AllMenusRecap[]>(
+        { queryKey: ["allMenusRecap"] },
+        (oldData) => {
+          if (!oldData) return oldData;
+          return oldData.map((item) => {
+            if (item.username === menuData.userId) {
+              return {
+                ...item,
+                entries: newData.menu.entries,
+                flat: newData.menu.flat,
+                desserts: newData.menu.desserts,
+              };
+            }
+            return item;
+          });
+        }
+      );
     },
     onError: (error) => {
       console.error("Failed to update menu:", error);
+      queryClient.invalidateQueries({ queryKey: ["menu", userId] });
+      queryClient.invalidateQueries({ queryKey: ["allMenusRecap"] });
     },
   });
 

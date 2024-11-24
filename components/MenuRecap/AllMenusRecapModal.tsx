@@ -1,6 +1,5 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -39,12 +38,7 @@ const getMenuItemName = (
 };
 
 export const AllMenusRecapModal = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const { data: recap, isLoading, error } = useAllMenusRecap(isOpen);
-
-  const handleOpenChange = (open: boolean) => {
-    setIsOpen(open);
-  };
+  const { data: recap, isLoading, error } = useAllMenusRecap();
 
   const renderUserMenu = (menu: AllMenusRecap) => (
     <Card key={menu.username} className="p-4 bg-gray-800 border-none">
@@ -60,7 +54,7 @@ export const AllMenusRecapModal = () => {
   );
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+    <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" className="w-full">
           Voir tous les menus
