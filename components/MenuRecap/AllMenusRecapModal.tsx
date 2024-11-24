@@ -60,7 +60,6 @@ export const AllMenusRecapModal = () => {
     queryFn: fetchMenus,
     enabled: isOpen,
     staleTime: 30000,
-    cacheTime: 0,
     refetchInterval: isOpen ? 3000 : false,
   });
 
