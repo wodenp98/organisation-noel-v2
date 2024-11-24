@@ -16,14 +16,6 @@ interface UserMenu {
   menu: Menu;
 }
 
-interface AllMenusRecap {
-  name: string;
-  username: string;
-  entries: string | null;
-  flat: string | null;
-  desserts: string | null;
-}
-
 interface MenuUpdateData {
   entries?: string | null;
   flat?: string | null;
@@ -85,24 +77,6 @@ export function useMenu(userId: string | undefined) {
         queryKey: ["allMenusRecap"],
         exact: true,
       });
-
-      queryClient.setQueriesData<AllMenusRecap[]>(
-        { queryKey: ["allMenusRecap"] },
-        (oldData) => {
-          if (!oldData) return oldData;
-          return oldData.map((item) => {
-            if (item.username === menuData.userId) {
-              return {
-                ...item,
-                entries: newData.menu.entries,
-                flat: newData.menu.flat,
-                desserts: newData.menu.desserts,
-              };
-            }
-            return item;
-          });
-        }
-      );
     },
     onError: (error) => {
       console.error("Failed to update menu:", error);

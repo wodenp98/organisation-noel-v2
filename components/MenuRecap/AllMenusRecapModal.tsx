@@ -38,7 +38,15 @@ const getMenuItemName = (
 };
 
 export const AllMenusRecapModal = () => {
-  const { data: recap, isLoading, error } = useAllMenusRecap();
+  const {
+    data: recap,
+    isLoading,
+    error,
+  } = useAllMenusRecap() as {
+    data: AllMenusRecap[] | undefined;
+    isLoading: boolean;
+    error: Error | undefined;
+  };
 
   const renderUserMenu = (menu: AllMenusRecap) => (
     <Card key={menu.username} className="p-4 bg-gray-800 border-none">
@@ -81,7 +89,7 @@ export const AllMenusRecapModal = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
-            {recap?.map((menu) => renderUserMenu(menu))}
+            {recap && recap.map((menu) => renderUserMenu(menu))}
           </div>
         )}
       </DialogContent>
