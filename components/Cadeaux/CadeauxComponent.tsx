@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useCallback, useEffect } from "react";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { CardContent, CardFooter } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -84,11 +84,11 @@ export const CadeauxComponent = ({ userId }: { userId: string }) => {
 
   if (isLoading) {
     return (
-      <Card className="w-full max-w-md mx-auto">
+      <>
         <CardContent className="py-4">
           <div className="animate-pulse flex justify-center">Chargement...</div>
         </CardContent>
-      </Card>
+      </>
     );
   }
   return (
@@ -102,7 +102,7 @@ export const CadeauxComponent = ({ userId }: { userId: string }) => {
               className="text-center"
             >
               <p className="mb-2">Vous avez tiré au sort :</p>
-              <p className="text-xl font-bold">{drawnPerson}</p>
+              <p className="text-xl font-bold capitalize">{drawnPerson}</p>
             </motion.div>
           ) : (
             <motion.div

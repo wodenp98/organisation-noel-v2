@@ -15,15 +15,7 @@ model User {
   password      String          @unique
   email         String?         @unique
   emailVerified DateTime?
-  gen           Int
-  family        String
-  entries       String?
-  flat          String?
-  desserts      String?
-  alcoholSoft   String?
-  pollDate      String?
   nameOfPoll    String?
-  image         String?
   hasFor        String?
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
@@ -34,11 +26,36 @@ model User {
   
   givenDraws    Draw[]          @relation("Giver")
   receivedDraws Draw[]          @relation("Receiver")
+
+  userMenus UserMenu[]
 }
+
+model Menu {
+  id           String    @id @default(cuid())
+  entries      String?
+  flat         String?
+  desserts     String?
+  userMenus    UserMenu[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model UserMenu {
+  id        String   @id @default(cuid())
+  userId    String
+  menuId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  menu      Menu     @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, menuId])
+}
+
 
 model Draw {
   id          String    @id @default(cuid())
-  gen         Int       
   isRevealed  Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -48,7 +65,7 @@ model Draw {
   receiver    User      @relation("Receiver", fields: [receiverId], references: [id], onDelete: Cascade)
   receiverId  String
 
-  @@unique([giverId, gen]) 
+  @@unique([giverId]) 
 }
 
 model Account {

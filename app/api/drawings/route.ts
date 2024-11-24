@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   const { giverId } = await request.json();
+  console.log(giverId);
   try {
     const giver = await prisma.user.findUnique({
       where: { id: giverId },
@@ -11,27 +12,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    if (giver.gen === 0) {
-      return NextResponse.json(
-        { message: "Generation 0 is not part of the Secret Santa" },
-        { status: 403 }
-      );
-    }
-
-    const existingDraws = await prisma.draw.findFirst({
-      where: {
-        OR: [{ gen: 1 }, { gen: 2 }],
-      },
-    });
+    const existingDraws = await prisma.draw.findFirst();
 
     if (!existingDraws) {
-      await createInitialDraw(); // Retrait du paramètre gen
+      await createInitialDraw();
     }
 
     const assignment = await prisma.draw.findFirst({
       where: {
         giverId: giverId,
-        OR: [{ gen: 1 }, { gen: 2 }],
       },
       include: {
         receiver: true,
@@ -75,15 +64,10 @@ export async function POST(request: Request) {
 }
 
 async function createInitialDraw() {
-  // Retrait du paramètre gen
   const participants = await prisma.user.findMany({
-    where: {
-      gen: { in: [1, 2] },
-    },
     select: {
       id: true,
       name: true,
-      gen: true,
       hasFor: true,
     },
   });
@@ -105,7 +89,6 @@ async function createInitialDraw() {
             data: {
               giverId: assignment.giver.id,
               receiverId: assignment.receiver.id,
-              gen: assignment.giver.gen,
               isRevealed: false,
             },
           });

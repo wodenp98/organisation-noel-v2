@@ -1,377 +1,211 @@
 "use client";
-import React, { useState, ChangeEvent } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { FamilyMenuRecapModal } from "@/components/Family/FamilyRecapModel";
+import { useMenu } from "@/hooks/useMenu";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { AllMenusRecapModal } from "@/components/MenuRecap/AllMenusRecapModal";
 
-interface MenuFormState {
-  entries: string;
-  entries2: string | null;
-  hasSecondEntries: boolean;
-  flat: string;
-  flat2: string | null;
-  hasSecondFlat: boolean;
-  desserts: string;
-  desserts2: string | null;
-  hasSecondDesserts: boolean;
-  alcoholSoft: string;
-  alcoholSoft2: string | null;
-  hasSecondAlcoholSoft: boolean;
-}
+const menuOptions = {
+  starters: [
+    { id: "1", name: "Symphonie de Foie gras" },
+    { id: "2", name: "Ballotine de cabillaud aux agrumes" },
+  ],
+  mains: [
+    { id: "1", name: "Tournedos de canard, effeuillé de pdt" },
+    { id: "2", name: "Cocotte de St Jacques au vin blanc" },
+  ],
+  desserts: [
+    { id: "1", name: "Rosace vanille & son coeur fruits rouges" },
+    { id: "2", name: "St Honoré revisité" },
+  ],
+};
 
-interface MenuResponse {
-  success: boolean;
-  menu: {
-    entree1: string;
-    entree2: string;
-    plat1: string;
-    plat2: string;
-    dessert1: string;
-    dessert2: string;
-    alcohol1: string;
-    alcohol2: string;
-  };
-}
+const FormSchema = z.object({
+  entries: z.string({
+    required_error: "Veuillez sélectionner une entrée.",
+  }),
+  flat: z.string({
+    required_error: "Veuillez sélectionner un plat principal.",
+  }),
+  desserts: z.string({
+    required_error: "Veuillez sélectionner un dessert.",
+  }),
+});
 
-interface MenuUpdates {
-  entries?: string;
-  flat?: string;
-  desserts?: string;
-  alcoholSoft?: string;
-}
+type MenuChoice = z.infer<typeof FormSchema>;
 
 export const MenuComponent = ({ userId }: { userId: string }) => {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const { menuData, isLoading, createOrUpdateMenu } = useMenu(userId);
+  const [hasExistingMenu, setHasExistingMenu] = React.useState(false);
 
-  const { data: menuData, isLoading } = useQuery<MenuResponse>({
-    queryKey: ["menu", userId],
-    queryFn: async () => {
-      const response = await fetch(`/api/getMenu/${userId}`);
-      if (!response.ok) throw new Error("Failed to fetch menu");
-      return response.json();
-    },
-    staleTime: 30000,
-  });
-
-  const [formState, setFormState] = useState<MenuFormState>({
-    entries: "",
-    entries2: null,
-    hasSecondEntries: false,
-    flat: "",
-    flat2: null,
-    hasSecondFlat: false,
-    desserts: "",
-    desserts2: null,
-    hasSecondDesserts: false,
-    alcoholSoft: "",
-    alcoholSoft2: null,
-    hasSecondAlcoholSoft: false,
-  });
-
-  const updateMenuMutation = useMutation({
-    mutationFn: async ({
-      userId,
-      updates,
-    }: {
-      userId: string;
-      updates: MenuUpdates;
-    }) => {
-      const response = await fetch("/api/menuRecap", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, updates }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to update menu");
-      }
-
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["menuRecap"] });
-      toast({
-        description: "Vos choix ont été enregistrés",
-      });
-    },
-    onError: (error) => {
-      toast({
-        variant: "destructive",
-        description:
-          error instanceof Error ? error.message : "Une erreur est survenue",
-      });
+  const form = useForm<MenuChoice>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      entries: "",
+      flat: "",
+      desserts: "",
     },
   });
 
+  // Effet pour charger les données du menu existant
   React.useEffect(() => {
     if (menuData?.menu) {
-      const { menu } = menuData;
-      setFormState({
-        entries: menu.entree1 || "",
-        entries2: menu.entree2 || null,
-        hasSecondEntries: !!menu.entree2,
-        flat: menu.plat1 || "",
-        flat2: menu.plat2 || null,
-        hasSecondFlat: !!menu.plat2,
-        desserts: menu.dessert1 || "",
-        desserts2: menu.dessert2 || null,
-        hasSecondDesserts: !!menu.dessert2,
-        alcoholSoft: menu.alcohol1 || "",
-        alcoholSoft2: menu.alcohol2 || null,
-        hasSecondAlcoholSoft: !!menu.alcohol2,
+      const { entries, flat, desserts } = menuData.menu;
+      // Vérifier si au moins un choix a été fait
+      const hasChoices = entries || flat || desserts;
+      setHasExistingMenu(hasChoices);
+
+      form.reset({
+        entries: entries || "",
+        flat: flat || "",
+        desserts: desserts || "",
       });
     }
-  }, [menuData]);
+  }, [menuData, form]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!userId) {
-      toast({
-        variant: "destructive",
-        description: "Veuillez vous connecter à votre compte",
-      });
-      return;
-    }
-
-    if (
-      (formState.hasSecondEntries && !formState.entries2?.trim()) ||
-      (formState.hasSecondFlat && !formState.flat2?.trim()) ||
-      (formState.hasSecondDesserts && !formState.desserts2?.trim()) ||
-      (formState.hasSecondAlcoholSoft && !formState.alcoholSoft2?.trim())
-    ) {
-      toast({
-        variant: "destructive",
-        description: "Veuillez remplir tous les seconds choix activés",
-      });
-      return;
-    }
-
-    const updates: MenuUpdates = {
-      entries:
-        formState.entries +
-        (formState.hasSecondEntries && formState.entries2
-          ? `, ${formState.entries2}`
-          : ""),
-      flat:
-        formState.flat +
-        (formState.hasSecondFlat && formState.flat2
-          ? `, ${formState.flat2}`
-          : ""),
-      desserts:
-        formState.desserts +
-        (formState.hasSecondDesserts && formState.desserts2
-          ? `, ${formState.desserts2}`
-          : ""),
-      alcoholSoft:
-        formState.alcoholSoft +
-        (formState.hasSecondAlcoholSoft && formState.alcoholSoft2
-          ? `, ${formState.alcoholSoft2}`
-          : ""),
-    };
-
+  async function onSubmit(data: MenuChoice) {
     try {
-      await updateMenuMutation.mutateAsync({ userId, updates });
+      await createOrUpdateMenu.mutateAsync(data);
+      setHasExistingMenu(true);
+      toast({
+        title: "Menu mis à jour",
+        description: "Vos choix de menu ont été enregistrés avec succès !",
+      });
     } catch (error) {
-      console.error("Error submitting menu:", error);
+      toast({
+        title: "Erreur",
+        description:
+          "Impossible de mettre à jour vos choix de menu. Veuillez réessayer." |
+          (error.message as string),
+        variant: "destructive",
+      });
     }
-  };
-
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormState((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSwitchChange = (field: keyof MenuFormState) => {
-    setFormState((prev) => {
-      const fieldMapping: { [key: string]: string } = {
-        hasSecondEntries: "entries2",
-        hasSecondFlat: "flat2",
-        hasSecondDesserts: "desserts2",
-        hasSecondAlcoholSoft: "alcoholSoft2",
-      };
-
-      const newState = {
-        ...prev,
-        [field]: !prev[field],
-      };
-
-      if (fieldMapping[field] in newState) {
-        (newState as any)[fieldMapping[field]] = null;
-      }
-
-      return newState;
-    });
-  };
+  }
 
   if (isLoading) {
     return (
-      <Card className="w-full max-w-2xl mx-auto">
-        <CardContent className="p-8 text-center">
-          Chargement des données...
+      <>
+        <CardContent className="py-4">
+          <div className="animate-pulse flex justify-center">Chargement...</div>
         </CardContent>
-      </Card>
+      </>
     );
   }
 
   return (
-    <CardContent>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Entrées */}
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="entries">Entrée</Label>
-            <Input
-              id="entries"
+    <>
+      <CardContent className="pt-6">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
               name="entries"
-              value={formState.entries}
-              onChange={handleInputChange}
-              placeholder="Premier choix d'entrée"
-              className="mt-1"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Entrée</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionnez votre entrée" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {menuOptions.starters.map((starter) => (
+                        <SelectItem key={starter.id} value={starter.id}>
+                          {starter.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="flex items-center space-x-2">
-            <Switch
-              checked={formState.hasSecondEntries}
-              onCheckedChange={() => handleSwitchChange("hasSecondEntries")}
-            />
-            <Label>Ajouter une seconde entrée</Label>
-          </div>
-
-          {formState.hasSecondEntries && (
-            <Input
-              name="entries2"
-              value={formState.entries2 || ""}
-              onChange={handleInputChange}
-              placeholder="Second choix d'entrée"
-              className="mt-1"
-            />
-          )}
-        </div>
-
-        {/* Plats */}
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="flat">Plat</Label>
-            <Input
-              id="flat"
+            <FormField
+              control={form.control}
               name="flat"
-              value={formState.flat}
-              onChange={handleInputChange}
-              placeholder="Premier choix de plat"
-              className="mt-1"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Plat Principal</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionnez votre plat principal" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {menuOptions.mains.map((main) => (
+                        <SelectItem key={main.id} value={main.id}>
+                          {main.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="flex items-center space-x-2">
-            <Switch
-              checked={formState.hasSecondFlat}
-              onCheckedChange={() => handleSwitchChange("hasSecondFlat")}
-            />
-            <Label>Ajouter un second plat</Label>
-          </div>
-
-          {formState.hasSecondFlat && (
-            <Input
-              name="flat2"
-              value={formState.flat2 || ""}
-              onChange={handleInputChange}
-              placeholder="Second choix de plat"
-              className="mt-1"
-            />
-          )}
-        </div>
-
-        {/* Desserts */}
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="desserts">Dessert</Label>
-            <Input
-              id="desserts"
+            <FormField
+              control={form.control}
               name="desserts"
-              value={formState.desserts}
-              onChange={handleInputChange}
-              placeholder="Premier choix de dessert"
-              className="mt-1"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Dessert</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionnez votre dessert" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {menuOptions.desserts.map((dessert) => (
+                        <SelectItem key={dessert.id} value={dessert.id}>
+                          {dessert.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Switch
-              checked={formState.hasSecondDesserts}
-              onCheckedChange={() => handleSwitchChange("hasSecondDesserts")}
-            />
-            <Label>Ajouter un second dessert</Label>
-          </div>
-
-          {formState.hasSecondDesserts && (
-            <Input
-              name="desserts2"
-              value={formState.desserts2 || ""}
-              onChange={handleInputChange}
-              placeholder="Second choix de dessert"
-              className="mt-1"
-            />
-          )}
-        </div>
-
-        {/* Boissons */}
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="alcoholSoft">Boisson</Label>
-            <Input
-              id="alcoholSoft"
-              name="alcoholSoft"
-              value={formState.alcoholSoft}
-              onChange={handleInputChange}
-              placeholder="Premier choix de boisson"
-              className="mt-1"
-            />
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Switch
-              checked={formState.hasSecondAlcoholSoft}
-              onCheckedChange={() => handleSwitchChange("hasSecondAlcoholSoft")}
-            />
-            <Label>Ajouter une seconde boisson</Label>
-          </div>
-
-          {formState.hasSecondAlcoholSoft && (
-            <Input
-              name="alcoholSoft2"
-              value={formState.alcoholSoft2 || ""}
-              onChange={handleInputChange}
-              placeholder="Second choix de boisson"
-              className="mt-1"
-            />
-          )}
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={updateMenuMutation.isPending}
-          >
-            {updateMenuMutation.isPending
-              ? "Enregistrement..."
-              : "Enregistrer mes choix"}
-          </Button>
-          <FamilyMenuRecapModal />
-        </div>
-      </form>
-    </CardContent>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={createOrUpdateMenu.isPending}
+            >
+              {createOrUpdateMenu.isPending
+                ? "Enregistrement..."
+                : hasExistingMenu
+                ? "Modifier mes choix"
+                : "Enregistrer mes choix"}
+            </Button>
+            <AllMenusRecapModal />
+          </form>
+        </Form>
+      </CardContent>
+    </>
   );
 };

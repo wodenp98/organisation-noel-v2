@@ -26,7 +26,7 @@ export default async function RootLayout({
                   {session ? (
                     <>
                       <AppSidebar />
-                      <main className="grow">
+                      <main className="grow relative">
                         <SidebarTrigger />
                         <div className="flex flex-col min-h-screen overflow-hidden">
                           {children}

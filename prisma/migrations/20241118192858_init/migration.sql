@@ -6,19 +6,49 @@ CREATE TABLE "User" (
     "password" TEXT NOT NULL,
     "email" TEXT,
     "emailVerified" TIMESTAMP(3),
-    "gen" INTEGER NOT NULL,
-    "family" TEXT NOT NULL,
-    "entries" TEXT,
-    "flat" TEXT,
-    "desserts" TEXT,
-    "alcoholSoft" TEXT,
-    "pollDate" TEXT,
     "nameOfPoll" TEXT,
-    "image" TEXT,
+    "hasFor" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Menu" (
+    "id" TEXT NOT NULL,
+    "entries" TEXT,
+    "flat" TEXT,
+    "desserts" TEXT,
+    "alcoholSoft" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Menu_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "UserMenu" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "menuId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "UserMenu_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Draw" (
+    "id" TEXT NOT NULL,
+    "gen" INTEGER NOT NULL,
+    "isRevealed" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "giverId" TEXT NOT NULL,
+    "receiverId" TEXT NOT NULL,
+
+    CONSTRAINT "Draw_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -82,10 +112,28 @@ CREATE UNIQUE INDEX "User_password_key" ON "User"("password");
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "UserMenu_userId_menuId_key" ON "UserMenu"("userId", "menuId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Draw_giverId_gen_key" ON "Draw"("giverId", "gen");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Session_sessionToken_key" ON "Session"("sessionToken");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Authenticator_credentialID_key" ON "Authenticator"("credentialID");
+
+-- AddForeignKey
+ALTER TABLE "UserMenu" ADD CONSTRAINT "UserMenu_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UserMenu" ADD CONSTRAINT "UserMenu_menuId_fkey" FOREIGN KEY ("menuId") REFERENCES "Menu"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Draw" ADD CONSTRAINT "Draw_giverId_fkey" FOREIGN KEY ("giverId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Draw" ADD CONSTRAINT "Draw_receiverId_fkey" FOREIGN KEY ("receiverId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -1,4 +1,4 @@
-import { Gift, CalendarClock, ChefHat } from "lucide-react";
+import { Gift, ChefHat } from "lucide-react";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import {
@@ -20,37 +20,18 @@ export async function AppSidebar() {
     return redirect("/login");
   }
 
-  const items =
-    session.user?.name === "Papy"
-      ? [
-          {
-            title: "Date",
-            url: "/",
-            icon: CalendarClock,
-          },
-          {
-            title: "Manger",
-            url: "/manger",
-            icon: ChefHat,
-          },
-        ]
-      : [
-          {
-            title: "Date",
-            url: "/",
-            icon: CalendarClock,
-          },
-          {
-            title: "Cadeaux",
-            url: "/cadeaux",
-            icon: Gift,
-          },
-          {
-            title: "Manger",
-            url: "/manger",
-            icon: ChefHat,
-          },
-        ];
+  const items = [
+    {
+      title: "Cadeaux",
+      url: "/",
+      icon: Gift,
+    },
+    {
+      title: "Manger",
+      url: "/manger",
+      icon: ChefHat,
+    },
+  ];
 
   return (
     <Sidebar>
