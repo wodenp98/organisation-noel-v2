@@ -59,22 +59,21 @@ export const AllMenusRecapModal = () => {
     queryKey: ["menus"],
     queryFn: fetchMenus,
     enabled: isOpen,
-    staleTime: 0,
+    staleTime: 30000,
+    cacheTime: 0,
     refetchInterval: isOpen ? 3000 : false,
-    refetchOnWindowFocus: true,
   });
 
   useEffect(() => {
     if (isOpen) {
-      queryClient.invalidateQueries({ queryKey: ["menus"] });
+      refetch();
     }
-  }, [isOpen, queryClient]);
+  }, [isOpen, queryClient, refetch]);
 
   const handleOpenChange = async (open: boolean) => {
     setIsOpen(open);
     if (open) {
-      await queryClient.invalidateQueries({ queryKey: ["menus"] });
-      refetch();
+      await refetch();
     }
   };
 
