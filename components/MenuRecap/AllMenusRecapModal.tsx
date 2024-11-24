@@ -23,7 +23,10 @@ type MenuRecap = {
 };
 
 const fetchMenus = async (): Promise<MenuRecap[]> => {
-  const response = await fetch("/api/menus/all");
+  const response = await fetch(`/api/menus/all?_=${Date.now()}`, {
+    method: "GET",
+  });
+
   if (!response.ok) {
     throw new Error("Erreur lors du chargement des menus");
   }
@@ -105,16 +108,6 @@ export const AllMenusRecapModal = () => {
           </DialogTitle>
           <DialogDescription className="text-gray-400">
             Vue d'ensemble des choix de menu de tous les invités
-            <Button
-              variant="ghost"
-              size="sm"
-              className="ml-2"
-              onClick={() =>
-                queryClient.invalidateQueries({ queryKey: ["menus"] })
-              }
-            >
-              Rafraîchir
-            </Button>
           </DialogDescription>
         </DialogHeader>
 
