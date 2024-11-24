@@ -110,7 +110,6 @@ async function createInitialDraw() {
 interface Participant {
   id: string;
   name: string;
-  gen: number;
   hasFor: string | null;
 }
 

@@ -72,7 +72,7 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
     if (menuData?.menu) {
       const { entries, flat, desserts } = menuData.menu;
       // Vérifier si au moins un choix a été fait
-      const hasChoices = entries || flat || desserts;
+      const hasChoices = Boolean(entries || flat || desserts);
       setHasExistingMenu(hasChoices);
 
       form.reset({
@@ -95,8 +95,9 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
       toast({
         title: "Erreur",
         description:
-          "Impossible de mettre à jour vos choix de menu. Veuillez réessayer." |
-          (error.message as string),
+          error instanceof Error
+            ? (error.message as string)
+            : "Impossible de mettre à jour vos choix de menu. Veuillez réessayer.",
         variant: "destructive",
       });
     }
