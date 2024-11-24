@@ -67,11 +67,9 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
     },
   });
 
-  // Effet pour charger les données du menu existant
   React.useEffect(() => {
     if (menuData?.menu) {
       const { entries, flat, desserts } = menuData.menu;
-      // Vérifier si au moins un choix a été fait
       const hasChoices = Boolean(entries || flat || desserts);
       setHasExistingMenu(hasChoices);
 

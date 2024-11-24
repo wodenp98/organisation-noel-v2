@@ -1,4 +1,3 @@
-// app/api/menus/all/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/utils/prisma/prisma";
 
@@ -25,7 +24,6 @@ export async function GET() {
       },
     });
 
-    // Formatter les données pour correspondre à la structure MenuRecap attendue par le frontend
     const formattedMenus = allUserMenus.map((userMenu) => ({
       name: userMenu.user.name,
       username: userMenu.user.username,

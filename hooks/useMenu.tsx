@@ -36,7 +36,7 @@ export function useMenu(userId: string | undefined) {
       }
       return response.json();
     },
-    enabled: !!userId, // Ne déclenche la requête que si userId existe
+    enabled: !!userId,
     initialData: {
       menu: {
         entries: null,

@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { menuOptions } from "@/types/menuOptions";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 type MenuRecap = {
   name: string;
@@ -22,7 +22,6 @@ type MenuRecap = {
   desserts: string | null;
 };
 
-// Fonction de fetch séparée pour la réutilisabilité
 const fetchMenus = async (): Promise<MenuRecap[]> => {
   const response = await fetch("/api/menus/all");
   if (!response.ok) {
@@ -49,6 +48,7 @@ const getMenuItemName = (
 
 export const AllMenusRecapModal = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const {
     data: recap,
@@ -58,10 +58,25 @@ export const AllMenusRecapModal = () => {
   } = useQuery({
     queryKey: ["menus"],
     queryFn: fetchMenus,
-    enabled: isOpen, // La requête ne se déclenche que lorsque le modal est ouvert
-    staleTime: 30000, // Considère les données comme périmées après 30 secondes
+    enabled: isOpen,
+    staleTime: 0,
+    refetchInterval: isOpen ? 3000 : false,
     refetchOnWindowFocus: true,
   });
+
+  useEffect(() => {
+    if (isOpen) {
+      queryClient.invalidateQueries({ queryKey: ["menus"] });
+    }
+  }, [isOpen, queryClient]);
+
+  const handleOpenChange = async (open: boolean) => {
+    setIsOpen(open);
+    if (open) {
+      await queryClient.invalidateQueries({ queryKey: ["menus"] });
+      refetch();
+    }
+  };
 
   const renderUserMenu = (menu: MenuRecap) => {
     return (
@@ -79,15 +94,7 @@ export const AllMenusRecapModal = () => {
   };
 
   return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={(open) => {
-        setIsOpen(open);
-        if (open) {
-          refetch(); // Force un rafraîchissement quand le modal s'ouvre
-        }
-      }}
-    >
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" className="w-full">
           Voir tous les menus
@@ -100,6 +107,16 @@ export const AllMenusRecapModal = () => {
           </DialogTitle>
           <DialogDescription className="text-gray-400">
             Vue d'ensemble des choix de menu de tous les invités
+            <Button
+              variant="ghost"
+              size="sm"
+              className="ml-2"
+              onClick={() =>
+                queryClient.invalidateQueries({ queryKey: ["menus"] })
+              }
+            >
+              Rafraîchir
+            </Button>
           </DialogDescription>
         </DialogHeader>
 
