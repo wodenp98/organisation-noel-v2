@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { menuOptions } from "@/types/menuOptions";
+import { useQuery } from "@tanstack/react-query";
 
 type MenuRecap = {
   name: string;
@@ -21,30 +22,13 @@ type MenuRecap = {
   desserts: string | null;
 };
 
-const useAllMenus = (isOpen: boolean) => {
-  const [recap, setRecap] = useState<MenuRecap[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  React.useEffect(() => {
-    const fetchData = async () => {
-      if (!isOpen) return;
-
-      setIsLoading(true);
-      try {
-        const response = await fetch("/api/menus/all");
-        const data = await response.json();
-        setRecap(data);
-      } catch (error) {
-        console.error("Erreur lors du chargement des menus:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [isOpen]);
-
-  return { recap, isLoading };
+// Fonction de fetch séparée pour la réutilisabilité
+const fetchMenus = async (): Promise<MenuRecap[]> => {
+  const response = await fetch("/api/menus/all");
+  if (!response.ok) {
+    throw new Error("Erreur lors du chargement des menus");
+  }
+  return response.json();
 };
 
 const getMenuItemName = (
@@ -65,7 +49,19 @@ const getMenuItemName = (
 
 export const AllMenusRecapModal = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { recap, isLoading } = useAllMenus(isOpen);
+
+  const {
+    data: recap,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["menus"],
+    queryFn: fetchMenus,
+    enabled: isOpen, // La requête ne se déclenche que lorsque le modal est ouvert
+    staleTime: 30000, // Considère les données comme périmées après 30 secondes
+    refetchOnWindowFocus: true,
+  });
 
   const renderUserMenu = (menu: MenuRecap) => {
     return (
@@ -83,7 +79,15 @@ export const AllMenusRecapModal = () => {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        if (open) {
+          refetch(); // Force un rafraîchissement quand le modal s'ouvre
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="outline" className="w-full">
           Voir tous les menus
@@ -104,9 +108,13 @@ export const AllMenusRecapModal = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500" />
             <p className="font-medium">Chargement des menus...</p>
           </div>
+        ) : error ? (
+          <div className="text-red-500 p-4 text-center">
+            Une erreur est survenue lors du chargement des menus
+          </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
-            {recap.map((menu) => renderUserMenu(menu))}
+            {recap?.map((menu) => renderUserMenu(menu))}
           </div>
         )}
       </DialogContent>
