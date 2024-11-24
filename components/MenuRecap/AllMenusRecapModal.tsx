@@ -14,6 +14,14 @@ import { Card } from "@/components/ui/card";
 import { menuOptions } from "@/types/menuOptions";
 import { useAllMenusRecap } from "@/hooks/useAllMenusRecap";
 
+interface AllMenusRecap {
+  name: string;
+  username: string;
+  entries: string | null;
+  flat: string | null;
+  desserts: string | null;
+}
+
 const getMenuItemName = (
   type: "entries" | "flat" | "desserts",
   id: string | null
