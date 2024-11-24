@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,26 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { menuOptions } from "@/types/menuOptions";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-
-type MenuRecap = {
-  name: string;
-  username: string;
-  entries: string | null;
-  flat: string | null;
-  desserts: string | null;
-};
-
-const fetchMenus = async (): Promise<MenuRecap[]> => {
-  const response = await fetch(`/api/menus/all?_=${Date.now()}`, {
-    method: "GET",
-  });
-
-  if (!response.ok) {
-    throw new Error("Erreur lors du chargement des menus");
-  }
-  return response.json();
-};
+import { useAllMenusRecap } from "@/hooks/useAllMenusRecap";
 
 const getMenuItemName = (
   type: "entries" | "flat" | "desserts",
@@ -51,48 +32,24 @@ const getMenuItemName = (
 
 export const AllMenusRecapModal = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const queryClient = useQueryClient();
+  const { data: recap, isLoading, error } = useAllMenusRecap();
 
-  const {
-    data: recap,
-    isLoading,
-    error,
-    refetch,
-  } = useQuery({
-    queryKey: ["menus"],
-    queryFn: fetchMenus,
-    enabled: isOpen,
-    staleTime: 30000,
-    refetchInterval: isOpen ? 3000 : false,
-  });
-
-  useEffect(() => {
-    if (isOpen) {
-      refetch();
-    }
-  }, [isOpen, queryClient, refetch]);
-
-  const handleOpenChange = async (open: boolean) => {
+  const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
-    if (open) {
-      await refetch();
-    }
   };
 
-  const renderUserMenu = (menu: MenuRecap) => {
-    return (
-      <Card key={menu.username} className="p-4 bg-gray-800 border-none">
-        <h3 className="font-semibold text-yellow-500 mb-2 capitalize">
-          Invité: {menu.name}
-        </h3>
-        <ul className="space-y-2 text-sm text-gray-300">
-          <li>Entrée: {getMenuItemName("entries", menu.entries)}</li>
-          <li>Plat: {getMenuItemName("flat", menu.flat)}</li>
-          <li>Dessert: {getMenuItemName("desserts", menu.desserts)}</li>
-        </ul>
-      </Card>
-    );
-  };
+  const renderUserMenu = (menu: AllMenusRecap) => (
+    <Card key={menu.username} className="p-4 bg-gray-800 border-none">
+      <h3 className="font-semibold text-yellow-500 mb-2 capitalize">
+        {menu.name}
+      </h3>
+      <ul className="space-y-2 text-sm text-gray-300">
+        <li>Entrée: {getMenuItemName("entries", menu.entries)}</li>
+        <li>Plat: {getMenuItemName("flat", menu.flat)}</li>
+        <li>Dessert: {getMenuItemName("desserts", menu.desserts)}</li>
+      </ul>
+    </Card>
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -106,7 +63,7 @@ export const AllMenusRecapModal = () => {
           <DialogTitle className="text-xl font-bold mb-4">
             Récapitulatif de tous les menus
           </DialogTitle>
-          <DialogDescription className="text-gray-400">
+          <DialogDescription>
             Vue d'ensemble des choix de menu de tous les invités
           </DialogDescription>
         </DialogHeader>

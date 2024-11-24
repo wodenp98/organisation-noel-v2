@@ -69,6 +69,7 @@ export function useMenu(userId: string | undefined) {
     },
     onSuccess: (newData) => {
       queryClient.setQueryData(["menu", userId], newData);
+      queryClient.invalidateQueries(["allMenusRecap"]);
     },
     onError: (error) => {
       console.error("Failed to update menu:", error);

@@ -32,11 +32,7 @@ export async function GET() {
       desserts: userMenu.menu.desserts,
     }));
 
-    return NextResponse.json(formattedMenus, {
-      headers: {
-        "Cache-Control": "no-store", // Désactive le cache
-      },
-    });
+    return NextResponse.json(formattedMenus);
   } catch (error) {
     console.error("GET All Menus error:", error);
     return NextResponse.json(
