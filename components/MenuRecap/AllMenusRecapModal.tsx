@@ -1,5 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
+import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { menuOptions } from "@/types/menuOptions";
-import { useAllMenusRecap } from "@/hooks/useAllMenusRecap";
+// import { useAllMenusRecap } from "@/hooks/useAllMenusRecap";
 
 interface AllMenusRecap {
   name: string;
@@ -37,16 +38,20 @@ const getMenuItemName = (
   return item?.name || "Non sélectionné";
 };
 
-export const AllMenusRecapModal = () => {
-  const {
-    data: recap,
-    isLoading,
-    error,
-  } = useAllMenusRecap() as {
-    data: AllMenusRecap[] | undefined;
-    isLoading: boolean;
-    error: Error | undefined;
-  };
+export function AllMenusRecapModal() {
+  const [recap, setRecap] = React.useState<AllMenusRecap[]>([]);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      const data = await fetch("/api/menus");
+      if (!data.ok) {
+        throw new Error(`Failed to fetch all menus: ${data.statusText}`);
+      }
+      const dataJson = await data.json();
+      setRecap(dataJson);
+    };
+    fetchData();
+  }, []);
 
   const renderUserMenu = (menu: AllMenusRecap) => (
     <Card key={menu.username} className="p-4 bg-gray-800 border-none">
@@ -78,21 +83,10 @@ export const AllMenusRecapModal = () => {
           </DialogDescription>
         </DialogHeader>
 
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center space-y-4 p-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500" />
-            <p className="font-medium">Chargement des menus...</p>
-          </div>
-        ) : error ? (
-          <div className="text-red-500 p-4 text-center">
-            Une erreur est survenue lors du chargement des menus
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-4">
-            {recap && recap.map((menu) => renderUserMenu(menu))}
-          </div>
-        )}
+        <div className="grid grid-cols-1 gap-4">
+          {recap && recap.map((menu) => renderUserMenu(menu))}
+        </div>
       </DialogContent>
     </Dialog>
   );
-};
+}
