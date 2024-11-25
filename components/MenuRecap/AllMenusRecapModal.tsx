@@ -40,18 +40,22 @@ const getMenuItemName = (
 
 export function AllMenusRecapModal() {
   const [recap, setRecap] = React.useState<AllMenusRecap[]>([]);
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  const fetchData = async () => {
+    const data = await fetch("/api/menus", { cache: "no-store" });
+    if (!data.ok) {
+      throw new Error(`Failed to fetch all menus: ${data.statusText}`);
+    }
+    const dataJson = await data.json();
+    setRecap(dataJson);
+  };
 
   React.useEffect(() => {
-    const fetchData = async () => {
-      const data = await fetch("/api/menus");
-      if (!data.ok) {
-        throw new Error(`Failed to fetch all menus: ${data.statusText}`);
-      }
-      const dataJson = await data.json();
-      setRecap(dataJson);
-    };
-    fetchData();
-  }, []);
+    if (isOpen) {
+      fetchData();
+    }
+  }, [isOpen]);
 
   const renderUserMenu = (menu: AllMenusRecap) => (
     <Card key={menu.username} className="p-4 bg-gray-800 border-none">
@@ -67,7 +71,7 @@ export function AllMenusRecapModal() {
   );
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
       <DialogTrigger asChild>
         <Button variant="outline" className="w-full">
           Voir tous les menus
