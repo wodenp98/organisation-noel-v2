@@ -112,8 +112,6 @@ export async function POST(request: NextRequest) {
         },
       });
     }
-
-    // Safely access user information
     const userName =
       userMenu?.user.name ||
       (updatedMenu.userMenus && updatedMenu.userMenus.length > 0

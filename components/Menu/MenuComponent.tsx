@@ -62,6 +62,7 @@ type MenuUpdates = {
 export const MenuComponent = ({ userId }: { userId: string }) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [isUpdating, setIsUpdating] = React.useState(false);
   const { menuData, isLoading } = useMenu(userId);
   const [hasExistingMenu, setHasExistingMenu] = React.useState(false);
 
@@ -125,6 +126,7 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
   });
 
   const handleSubmit = async (data: MenuChoice) => {
+    setIsUpdating(true);
     if (!userId) {
       toast({
         variant: "destructive",
@@ -144,6 +146,7 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
     } catch (error) {
       console.error("Error submitting menu:", error);
     }
+    setIsUpdating(false);
   };
 
   if (isLoading) {
@@ -233,7 +236,11 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
             )}
           />
           <Button type="submit" className="w-full">
-            {hasExistingMenu ? "Modifier mes choix" : "Enregistrer mes choix"}
+            {isUpdating
+              ? "Enregistrement..."
+              : hasExistingMenu
+              ? "Modifier mes choix"
+              : "Enregistrer mes choix"}
           </Button>
           <MenuRecapModal />
         </form>

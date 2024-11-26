@@ -33,9 +33,9 @@ export const MenuRecapModal = () => {
     };
 
     return (
-      <div key={items.name} className="p-4 rounded-lg bg-gray-800">
+      <div key={items.username} className="p-4 rounded-lg bg-gray-800">
         <h3 className="font-semibold mb-2 text-yellow-500 capitalize">
-          {items.name}
+          {items.username}
         </h3>
         <ul className="text-sm text-gray-300 space-y-2">
           <li>Entrées: {getDishName("starters", items.entries)}</li>
