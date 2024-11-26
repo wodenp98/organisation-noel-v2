@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/utils/prisma/prisma";
 
 export async function GET() {
@@ -82,6 +82,13 @@ export async function POST(request: NextRequest) {
           flat: updates.flat,
           desserts: updates.desserts,
         },
+        include: {
+          userMenus: {
+            include: {
+              user: true,
+            },
+          },
+        },
       });
     } else {
       updatedMenu = await prisma.menu.create({
@@ -106,10 +113,22 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Safely access user information
+    const userName =
+      userMenu?.user.name ||
+      (updatedMenu.userMenus && updatedMenu.userMenus.length > 0
+        ? updatedMenu.userMenus[0].user.name
+        : "");
+
+    const username =
+      userMenu?.user.username ||
+      (updatedMenu.userMenus && updatedMenu.userMenus.length > 0
+        ? updatedMenu.userMenus[0].user.username
+        : "");
+
     return NextResponse.json({
-      name: userMenu?.user.name || updatedMenu.userMenus[0].user.name,
-      username:
-        userMenu?.user.username || updatedMenu.userMenus[0].user.username,
+      name: userName,
+      username: username,
       entries: updatedMenu.entries,
       flat: updatedMenu.flat,
       desserts: updatedMenu.desserts,

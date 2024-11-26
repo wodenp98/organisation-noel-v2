@@ -3,10 +3,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 const MENU_RECAP_KEY = ["menuRecap"];
 
 interface FamilyAggregation {
-  entries: Array<string>;
-  flat: Array<string>;
-  desserts: Array<string>;
-  alcoholSoft: Array<string>;
+  name: string;
+  entries: string;
+  flat: string;
+  desserts: string;
 }
 
 interface RecapData {

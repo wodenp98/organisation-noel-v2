@@ -12,11 +12,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { menuOptions } from "@/types/menuOptions";
 
+interface FamilyAggregation {
+  name: string;
+  entries: string;
+  flat: string;
+  desserts: string;
+}
+
 export const MenuRecapModal = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { recap, isLoading } = useMenuRecap(isOpen);
 
-  const renderFamilyRecap = (items: any) => {
+  const renderFamilyRecap = (items: FamilyAggregation) => {
     const getDishName = (
       category: "starters" | "mains" | "desserts",
       id: string
@@ -62,7 +69,13 @@ export const MenuRecapModal = () => {
         ) : (
           recap && (
             <div className="grid gap-6">
-              {recap.map((items) => renderFamilyRecap(items))}
+              {recap && (
+                <div className="grid gap-6">
+                  {Object.entries(recap).map(([name, items]) =>
+                    renderFamilyRecap({ ...items, name })
+                  )}
+                </div>
+              )}
             </div>
           )
         )}
