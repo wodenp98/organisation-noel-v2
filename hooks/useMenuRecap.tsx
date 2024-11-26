@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 const MENU_RECAP_KEY = ["menuRecap"];
 
 interface FamilyAggregation {
+  username: string;
   name: string;
   entries: string;
   flat: string;

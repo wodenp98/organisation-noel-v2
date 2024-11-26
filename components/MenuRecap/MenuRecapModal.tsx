@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { menuOptions } from "@/types/menuOptions";
 
 interface FamilyAggregation {
+  username: string;
   name: string;
   entries: string;
   flat: string;
