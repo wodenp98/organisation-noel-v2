@@ -22,7 +22,8 @@ import {
 } from "@/components/ui/select";
 import { CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { AllMenusRecapModal } from "@/components/MenuRecap/AllMenusRecapModal";
+import { MenuRecapModal } from "@/components/MenuRecap/MenuRecapModal";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const menuOptions = {
   starters: [
@@ -52,10 +53,16 @@ const FormSchema = z.object({
 });
 
 type MenuChoice = z.infer<typeof FormSchema>;
+type MenuUpdates = {
+  entries: string;
+  flat: string;
+  desserts: string;
+};
 
 export const MenuComponent = ({ userId }: { userId: string }) => {
   const { toast } = useToast();
-  const { menuData, isLoading, createOrUpdateMenu } = useMenu(userId);
+  const queryClient = useQueryClient();
+  const { menuData, isLoading } = useMenu(userId);
   const [hasExistingMenu, setHasExistingMenu] = React.useState(false);
 
   const form = useForm<MenuChoice>({
@@ -81,130 +88,156 @@ export const MenuComponent = ({ userId }: { userId: string }) => {
     }
   }, [menuData, form]);
 
-  async function onSubmit(data: MenuChoice) {
-    try {
-      await createOrUpdateMenu.mutateAsync(data);
-      setHasExistingMenu(true);
-      toast({
-        title: "Menu mis à jour",
-        description: "Vos choix de menu ont été enregistrés avec succès !",
+  const updateMenuMutation = useMutation({
+    mutationFn: async ({
+      userId,
+      updates,
+    }: {
+      userId: string;
+      updates: MenuUpdates;
+    }) => {
+      const response = await fetch("/api/allMenus", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, updates }),
       });
-    } catch (error) {
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to update menu");
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["menuRecap"] });
       toast({
-        title: "Erreur",
-        description:
-          error instanceof Error
-            ? (error.message as string)
-            : "Impossible de mettre à jour vos choix de menu. Veuillez réessayer.",
+        description: "Vos choix ont été enregistrés",
+      });
+    },
+    onError: (error) => {
+      toast({
         variant: "destructive",
+        description:
+          error instanceof Error ? error.message : "Une erreur est survenue",
       });
+    },
+  });
+
+  const handleSubmit = async (data: MenuChoice) => {
+    if (!userId) {
+      toast({
+        variant: "destructive",
+        description: "Veuillez vous connecter à votre compte",
+      });
+      return;
     }
-  }
+
+    const updates: MenuUpdates = {
+      entries: data.entries,
+      flat: data.flat,
+      desserts: data.desserts,
+    };
+
+    try {
+      await updateMenuMutation.mutateAsync({ userId, updates });
+    } catch (error) {
+      console.error("Error submitting menu:", error);
+    }
+  };
 
   if (isLoading) {
     return (
-      <>
-        <CardContent className="py-4">
-          <div className="animate-pulse flex justify-center">Chargement...</div>
-        </CardContent>
-      </>
+      <CardContent className="py-4">
+        <div className="animate-pulse flex justify-center">Chargement...</div>
+      </CardContent>
     );
   }
 
   return (
-    <>
-      <CardContent className="pt-6">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="entries"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Entrée</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez votre entrée" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {menuOptions.starters.map((starter) => (
-                        <SelectItem key={starter.id} value={starter.id}>
-                          {starter.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <CardContent className="pt-6">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="entries"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Entrée</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionnez votre entrée" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {menuOptions.starters.map((starter) => (
+                      <SelectItem key={starter.id} value={starter.id}>
+                        {starter.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={form.control}
-              name="flat"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Plat Principal</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez votre plat principal" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {menuOptions.mains.map((main) => (
-                        <SelectItem key={main.id} value={main.id}>
-                          {main.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <FormField
+            control={form.control}
+            name="flat"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Plat Principal</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionnez votre plat principal" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {menuOptions.mains.map((main) => (
+                      <SelectItem key={main.id} value={main.id}>
+                        {main.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={form.control}
-              name="desserts"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Dessert</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez votre dessert" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {menuOptions.desserts.map((dessert) => (
-                        <SelectItem key={dessert.id} value={dessert.id}>
-                          {dessert.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={createOrUpdateMenu.isPending}
-            >
-              {createOrUpdateMenu.isPending
-                ? "Enregistrement..."
-                : hasExistingMenu
-                ? "Modifier mes choix"
-                : "Enregistrer mes choix"}
-            </Button>
-            <AllMenusRecapModal />
-          </form>
-        </Form>
-      </CardContent>
-    </>
+          <FormField
+            control={form.control}
+            name="desserts"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Dessert</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionnez votre dessert" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {menuOptions.desserts.map((dessert) => (
+                      <SelectItem key={dessert.id} value={dessert.id}>
+                        {dessert.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" className="w-full">
+            {hasExistingMenu ? "Modifier mes choix" : "Enregistrer mes choix"}
+          </Button>
+          <MenuRecapModal />
+        </form>
+      </Form>
+    </CardContent>
   );
 };

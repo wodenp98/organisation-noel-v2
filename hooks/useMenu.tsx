@@ -30,7 +30,7 @@ export function useMenu(userId: string | undefined) {
     queryFn: async () => {
       if (!userId) throw new Error("User ID is required");
 
-      const response = await fetch(`/api/menu?userId=${userId}`);
+      const response = await fetch(`/api/menu/${userId}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch menu: ${response.statusText}`);
       }

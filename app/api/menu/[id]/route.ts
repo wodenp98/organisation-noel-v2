@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/utils/prisma/prisma";
 
-export async function GET(req: Request) {
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId");
-
-    if (!userId) {
+    if (!params.id) {
       return NextResponse.json(
         { error: "User ID is required" },
         { status: 400 }
@@ -15,7 +15,7 @@ export async function GET(req: Request) {
 
     const userMenu = await prisma.userMenu.findFirst({
       where: {
-        userId: userId,
+        userId: params.id,
       },
       include: {
         menu: true,
