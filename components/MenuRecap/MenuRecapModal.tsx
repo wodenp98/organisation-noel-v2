@@ -90,8 +90,10 @@ export const MenuRecapModal = () => {
           <h3 className="font-semibold mb-2 text-yellow-500">Entrées</h3>
           {Object.entries(selections.starters).map(([dishId, count]) => (
             <div key={dishId} className="flex justify-between text-sm">
-              <span>{getDishName("starters", dishId)}</span>
-              <span className="font-bold">{count} sélection(s)</span>
+              <span className="text-white">
+                {getDishName("starters", dishId)}
+              </span>
+              <span className="font-bold text-white">{count} sélection(s)</span>
             </div>
           ))}
         </div>
@@ -100,8 +102,8 @@ export const MenuRecapModal = () => {
           <h3 className="font-semibold mb-2 text-yellow-500">Plats</h3>
           {Object.entries(selections.mains).map(([dishId, count]) => (
             <div key={dishId} className="flex justify-between text-sm">
-              <span>{getDishName("mains", dishId)}</span>
-              <span className="font-bold">{count} sélection(s)</span>
+              <span className="text-white">{getDishName("mains", dishId)}</span>
+              <span className="font-bold text-white">{count} sélection(s)</span>
             </div>
           ))}
         </div>
@@ -110,8 +112,10 @@ export const MenuRecapModal = () => {
           <h3 className="font-semibold mb-2 text-yellow-500">Desserts</h3>
           {Object.entries(selections.desserts).map(([dishId, count]) => (
             <div key={dishId} className="flex justify-between text-sm">
-              <span>{getDishName("desserts", dishId)}</span>
-              <span className="font-bold">{count} sélection(s)</span>
+              <span className="text-white">
+                {getDishName("desserts", dishId)}
+              </span>
+              <span className="font-bold text-white">{count} sélection(s)</span>
             </div>
           ))}
         </div>
