@@ -67,7 +67,7 @@ export const MenuRecapModal = () => {
         <h3 className="font-semibold mb-2 text-yellow-500 capitalize">
           {items.username}
         </h3>
-        <ul className="text-sm text-gray-300 space-y-2">
+        <ul className="text-xs text-gray-300 space-y-2">
           <li>Entrées: {getDishName("starters", items.entries)}</li>
           <li>Plat: {getDishName("mains", items.flat)}</li>
           <li>Dessert: {getDishName("desserts", items.desserts)}</li>
@@ -82,18 +82,16 @@ export const MenuRecapModal = () => {
 
     return (
       <div className="mt-6 space-y-4 rounded-lg bg-gray-800 p-4">
-        <h2 className="text-lg font-bold text-yellow-500">
-          Résumé des sélections
-        </h2>
+        <h2 className="text-lg text-yellow-500">Résumé des sélections</h2>
 
         <div>
           <h3 className="font-semibold mb-2 text-yellow-500">Entrées</h3>
           {Object.entries(selections.starters).map(([dishId, count]) => (
-            <div key={dishId} className="flex justify-between text-sm">
+            <div key={dishId} className="flex justify-between text-xs">
               <span className="text-white">
                 {getDishName("starters", dishId)}
               </span>
-              <span className="font-bold text-white">{count} sélection(s)</span>
+              <span className="text-white">{count} sélection(s)</span>
             </div>
           ))}
         </div>
@@ -101,9 +99,9 @@ export const MenuRecapModal = () => {
         <div>
           <h3 className="font-semibold mb-2 text-yellow-500">Plats</h3>
           {Object.entries(selections.mains).map(([dishId, count]) => (
-            <div key={dishId} className="flex justify-between text-sm">
+            <div key={dishId} className="flex justify-between text-xs">
               <span className="text-white">{getDishName("mains", dishId)}</span>
-              <span className="font-bold text-white">{count} sélection(s)</span>
+              <span className="text-white">{count} sélection(s)</span>
             </div>
           ))}
         </div>
@@ -111,11 +109,11 @@ export const MenuRecapModal = () => {
         <div>
           <h3 className="font-semibold mb-2 text-yellow-500">Desserts</h3>
           {Object.entries(selections.desserts).map(([dishId, count]) => (
-            <div key={dishId} className="flex justify-between text-sm">
+            <div key={dishId} className="flex justify-between text-xs">
               <span className="text-white">
                 {getDishName("desserts", dishId)}
               </span>
-              <span className="font-bold text-white">{count} sélection(s)</span>
+              <span className="text-white">{count} sélection(s)</span>
             </div>
           ))}
         </div>
@@ -140,7 +138,7 @@ export const MenuRecapModal = () => {
       </DialogTrigger>
       <DialogContent className="w-[350px] md:w-[70vw] max-h-[80vh] overflow-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold mb-4">
+          <DialogTitle className="text-xl mb-4">
             Récapitulatif des menus
           </DialogTitle>
           <DialogDescription />
