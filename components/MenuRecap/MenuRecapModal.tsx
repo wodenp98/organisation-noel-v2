@@ -93,7 +93,7 @@ export const MenuRecapModal = () => {
               key={dishId}
               className="flex justify-between items-center text-xs"
             >
-              <span className="text-white truncate max-w-[70%] pr-2">
+              <span className="text-white">
                 {getDishName("starters", dishId)}
               </span>
               <span className="text-white whitespace-nowrap">
@@ -110,9 +110,7 @@ export const MenuRecapModal = () => {
               key={dishId}
               className="flex justify-between items-center text-xs"
             >
-              <span className="text-white truncate max-w-[70%] pr-2">
-                {getDishName("mains", dishId)}
-              </span>
+              <span className="text-white">{getDishName("mains", dishId)}</span>
               <span className="text-white whitespace-nowrap">
                 {count} sélection(s)
               </span>
@@ -127,7 +125,7 @@ export const MenuRecapModal = () => {
               key={dishId}
               className="flex justify-between items-center text-xs"
             >
-              <span className="text-white truncate max-w-[70%] pr-2">
+              <span className="text-white">
                 {getDishName("desserts", dishId)}
               </span>
               <span className="text-white whitespace-nowrap">
