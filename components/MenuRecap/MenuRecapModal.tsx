@@ -82,16 +82,23 @@ export const MenuRecapModal = () => {
 
     return (
       <div className="mt-6 space-y-4 rounded-lg bg-gray-800 p-4">
-        <h2 className="text-lg text-yellow-500">Résumé des sélections</h2>
+        <h2 className="text-lg text-yellow-500 font-bold">
+          Résumé des sélections
+        </h2>
 
         <div>
           <h3 className="font-semibold mb-2 text-yellow-500">Entrées</h3>
           {Object.entries(selections.starters).map(([dishId, count]) => (
-            <div key={dishId} className="flex justify-between text-xs">
-              <span className="text-white">
+            <div
+              key={dishId}
+              className="flex justify-between items-center text-xs"
+            >
+              <span className="text-white truncate max-w-[70%] pr-2">
                 {getDishName("starters", dishId)}
               </span>
-              <span className="text-white">{count} sélection(s)</span>
+              <span className="text-white whitespace-nowrap">
+                {count} sélection(s)
+              </span>
             </div>
           ))}
         </div>
@@ -99,9 +106,16 @@ export const MenuRecapModal = () => {
         <div>
           <h3 className="font-semibold mb-2 text-yellow-500">Plats</h3>
           {Object.entries(selections.mains).map(([dishId, count]) => (
-            <div key={dishId} className="flex justify-between text-xs">
-              <span className="text-white">{getDishName("mains", dishId)}</span>
-              <span className="text-white">{count} sélection(s)</span>
+            <div
+              key={dishId}
+              className="flex justify-between items-center text-xs"
+            >
+              <span className="text-white truncate max-w-[70%] pr-2">
+                {getDishName("mains", dishId)}
+              </span>
+              <span className="text-white whitespace-nowrap">
+                {count} sélection(s)
+              </span>
             </div>
           ))}
         </div>
@@ -109,11 +123,16 @@ export const MenuRecapModal = () => {
         <div>
           <h3 className="font-semibold mb-2 text-yellow-500">Desserts</h3>
           {Object.entries(selections.desserts).map(([dishId, count]) => (
-            <div key={dishId} className="flex justify-between text-xs">
-              <span className="text-white">
+            <div
+              key={dishId}
+              className="flex justify-between items-center text-xs"
+            >
+              <span className="text-white truncate max-w-[70%] pr-2">
                 {getDishName("desserts", dishId)}
               </span>
-              <span className="text-white">{count} sélection(s)</span>
+              <span className="text-white whitespace-nowrap">
+                {count} sélection(s)
+              </span>
             </div>
           ))}
         </div>
