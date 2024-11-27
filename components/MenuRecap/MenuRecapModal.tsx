@@ -28,9 +28,9 @@ export const MenuRecapModal = () => {
     if (!recap) return null;
 
     const selections = {
-      starters: {},
-      mains: {},
-      desserts: {},
+      starters: {} as Record<string, number>,
+      mains: {} as Record<string, number>,
+      desserts: {} as Record<string, number>,
     };
 
     Object.values(recap).forEach((family) => {
