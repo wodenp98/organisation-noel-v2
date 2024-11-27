@@ -24,6 +24,35 @@ export const MenuRecapModal = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { recap, isLoading } = useMenuRecap(isOpen);
 
+  const countDishSelections = () => {
+    if (!recap) return null;
+
+    const selections = {
+      starters: {},
+      mains: {},
+      desserts: {},
+    };
+
+    Object.values(recap).forEach((family) => {
+      if (family.entries) {
+        selections.starters[family.entries] =
+          (selections.starters[family.entries] || 0) + 1;
+      }
+
+      if (family.flat) {
+        selections.mains[family.flat] =
+          (selections.mains[family.flat] || 0) + 1;
+      }
+
+      if (family.desserts) {
+        selections.desserts[family.desserts] =
+          (selections.desserts[family.desserts] || 0) + 1;
+      }
+    });
+
+    return selections;
+  };
+
   const renderFamilyRecap = (items: FamilyAggregation) => {
     const getDishName = (
       category: "starters" | "mains" | "desserts",
@@ -45,6 +74,57 @@ export const MenuRecapModal = () => {
         </ul>
       </div>
     );
+  };
+
+  const renderDishCounts = () => {
+    const selections = countDishSelections();
+    if (!selections) return null;
+
+    return (
+      <div className="mt-6 space-y-4 rounded-lg bg-gray-800 p-4">
+        <h2 className="text-lg font-bold text-yellow-500">
+          Résumé des sélections
+        </h2>
+
+        <div>
+          <h3 className="font-semibold mb-2 text-yellow-500">Entrées</h3>
+          {Object.entries(selections.starters).map(([dishId, count]) => (
+            <div key={dishId} className="flex justify-between text-sm">
+              <span>{getDishName("starters", dishId)}</span>
+              <span className="font-bold">{count} sélection(s)</span>
+            </div>
+          ))}
+        </div>
+
+        <div>
+          <h3 className="font-semibold mb-2 text-yellow-500">Plats</h3>
+          {Object.entries(selections.mains).map(([dishId, count]) => (
+            <div key={dishId} className="flex justify-between text-sm">
+              <span>{getDishName("mains", dishId)}</span>
+              <span className="font-bold">{count} sélection(s)</span>
+            </div>
+          ))}
+        </div>
+
+        <div>
+          <h3 className="font-semibold mb-2 text-yellow-500">Desserts</h3>
+          {Object.entries(selections.desserts).map(([dishId, count]) => (
+            <div key={dishId} className="flex justify-between text-sm">
+              <span>{getDishName("desserts", dishId)}</span>
+              <span className="font-bold">{count} sélection(s)</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const getDishName = (
+    category: "starters" | "mains" | "desserts",
+    id: string
+  ) => {
+    const dish = menuOptions[category].find((dish) => dish.id === id);
+    return dish ? dish.name : "Non défini";
   };
 
   return (
@@ -70,13 +150,12 @@ export const MenuRecapModal = () => {
         ) : (
           recap && (
             <div className="grid gap-6">
-              {recap && (
-                <div className="grid gap-6">
-                  {Object.entries(recap).map(([name, items]) =>
-                    renderFamilyRecap({ ...items, name })
-                  )}
-                </div>
-              )}
+              <div className="grid gap-6">
+                {Object.entries(recap).map(([name, items]) =>
+                  renderFamilyRecap({ ...items, name })
+                )}
+              </div>
+              {renderDishCounts()}
             </div>
           )
         )}
